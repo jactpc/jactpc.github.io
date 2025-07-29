@@ -62,7 +62,7 @@ function createPdf(docTitle, characters, numberOfGrayscaleSigns, pasteSoImages, 
 				// copyright on the bottom
 					doc.setFont('Noto Sans');
 					doc.setFontSize(10); //in pt
-					var copyrightText = 'Create your own Chinese worksheets for free: www.is.gd/ch_ex';
+					var copyrightText = '';
 					var copyrightTextWidth = doc.getTextWidth(copyrightText) + 2;
 					var copyrightTextHeight = doc.internal.getLineHeight()/doc.internal.scaleFactor + 1;
 					doc.text(copyrightText, 105, charLineDistance * (charsPerPage+1) - 3, 'center');
@@ -70,7 +70,7 @@ function createPdf(docTitle, characters, numberOfGrayscaleSigns, pasteSoImages, 
 						charLineDistance * (charsPerPage+1) - 1.5 - copyrightTextHeight,
 						copyrightTextWidth,
 						copyrightTextHeight,
-						{ url: 'https://is.gd/ch_ex'});
+						{ url: ''});
 			}
 			thisLineYUpLeft = yUpLeft + (i%charsPerPage) * charLineDistance;
 			// paste hanzi-write Stroke Order SVGs
