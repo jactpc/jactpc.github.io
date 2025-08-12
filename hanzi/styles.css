@@ -6,9 +6,6 @@ body, html {
   font-family: 'Raleway', sans-serif;
   font-size: 14px;
 }
-body {
-  padding-bottom: 80px;
-}
 * {
   box-sizing: border-box;
 }
@@ -38,6 +35,7 @@ button, #target {
   clear: both;
   border: 1px solid black;
   margin: 0 auto;
+  width: 400px;
   /* height: auto;  opcional si quieres autoajuste */
 }
 
@@ -100,48 +98,14 @@ button:hover {
   box-shadow: none;
 }
 
-/* En móviles: ancho fluido y máximo 400px */
-@media (max-width: 590px) {
-  body {
-    width: 100%; /* o no poner width, para que use todo */
-    margin: 0;
-    padding: 0 10px; /* un poco de padding para que no pegue a los bordes */
-  }
-
-  #target, .char-form, .actions {
-    width: auto; /* máximo 400px */
-    margin: 0 auto;
-  }
-
-  .char-input {
-    width: 100%;      /* para que use todo el ancho disponible */
-    max-width: 300px;
-  }
-
-  .actions button {
-    width: auto;      /* para que los botones se adapten */
-    min-width: 60px;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    float: none;
-    display: inline-block;
-  }
-}
-
-/* En pantallas grandes: ancho fijo para contenedores */
-@media (min-width: 600px) {
-  #target, .char-form, .actions {
-    width: auto;
-    margin: 0 auto;
-  }
-
-  .char-input {
-    width: auto;
-  }
-
-  .actions button {
-    width: 97px;
-    float: left;
-    margin-right: 4px;
+/* En pantallas pequeñas (ejemplo: 480px o menos) limitar ancho a 400px */
+@media only screen and (max-width: 480px) {
+  body, #target {
+	width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
