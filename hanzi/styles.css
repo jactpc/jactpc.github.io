@@ -1,92 +1,147 @@
 body, html {
-	background: #f4f0ea;
-	margin: 0;
-	padding: 0;
-	text-align: center;
-	font-family: 'Raleway', sans-serif;
-	font-size: 14px;
+  background: #f4f0ea;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
 }
 body {
-	padding-bottom: 80px;
+  padding-bottom: 80px;
 }
 * {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 input, button {
-	outline: none;
+  outline: none;
 }
 button, #target, .title {
-	box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
 }
 
 button, #target {
-	text-shadow: 0 1px 1px white;
+  text-shadow: 0 1px 1px white;
 }
 
 .title {
-	color: white;
-	background: linear-gradient(to bottom, #333, #222);
-	padding: 15px 0;
-	margin: 0 0 30px;
-	text-shadow: 0 0 15px #4B89DB;
+  color: white;
+  background: linear-gradient(to bottom, #333, #222);
+  padding: 15px 0;
+  margin: 0 0 30px;
+  text-shadow: 0 0 15px #4B89DB;
 }
 
+/* Estilo base para #target: ocupa el 95% del ancho, con máximo 400px y centrado */
 #target {
-	background: white;
-	clear: both;
-	border: 1px solid black;
-	width: 400px;
-	/*height: 400px;*/
-	margin: 0 auto;
+  background: white;
+  clear: both;
+  border: 1px solid black;
+  margin: 0 auto;
+  /* height: auto;  opcional si quieres autoajuste */
 }
 
+/* También haz que el formulario y los botones tengan anchura fluida */
 .char-form {
-	margin: 0 0 20px;
+  margin: 0 0 20px;
+  max-width: 400px;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .char-form button {
-	padding: 8px 5px;
-	line-height: 14px;
-	display: inline-block;
-	vertical-align: top;
+  padding: 8px 5px;
+  line-height: 14px;
+  display: inline-block;
+  vertical-align: top;
 }
 
 .char-input {
-	font-size: 36px;
-	padding: 5px;
-	text-align: center;
+  font-size: 36px;
+  padding: 5px;
+  text-align: center;
+  width: calc(100% - 90px); /* Deja espacio para el botón */
+  max-width: 300px;
+  box-sizing: border-box;
 }
 
+/* El contenedor de botones independientes (si usas .actions, si no eliminar) */
 .actions {
-	width: 400px;
-	margin: 0 auto;
+  max-width: 400px;
+  width: 95%;
+  margin: 0 auto;
 }
 
+/* Ajusta los botones dentro de acciones para que en móvil tengan tamaño adecuado y no float */
 .actions button {
-	display: block;
-	width: 97px;
-	float: left;
-	margin-right: 4px;
-	margin-bottom: 4px;
-}
-.actions button:last-child {
-	margin-right: 0;
+  display: inline-block;
+  width: auto;
+  min-width: 60px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  float: none;
 }
 
+/* Estilos generales para botones */
 button {
-	background: none;
-    color: #444;
-    cursor: pointer;
-    transition: all 300ms;
-    border-radius: 13px;
-    padding: 4px;
-    font-size: 23px;
+  background: none;
+  color: #444;
+  cursor: pointer;
+  transition: all 300ms;
+  border-radius: 13px;
+  padding: 4px;
+  font-size: 23px;
 }
 
 button:hover {
-	color: #1e6cd2;
-	border: 1px solid #1e6cd2;
-	box-shadow: none;
+  color: #1e6cd2;
+  border: 1px solid #1e6cd2;
+  box-shadow: none;
 }
 
+/* En móviles: ancho fluido y máximo 400px */
+@media (max-width: 590px) {
+  body {
+    width: 100%; /* o no poner width, para que use todo */
+    margin: 0;
+    padding: 0 10px; /* un poco de padding para que no pegue a los bordes */
+  }
+
+  #target, .char-form, .actions {
+    width: auto; /* máximo 400px */
+    margin: 0 auto;
+  }
+
+  .char-input {
+    width: 100%;      /* para que use todo el ancho disponible */
+    max-width: 300px;
+  }
+
+  .actions button {
+    width: auto;      /* para que los botones se adapten */
+    min-width: 60px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    float: none;
+    display: inline-block;
+  }
+}
+
+/* En pantallas grandes: ancho fijo para contenedores */
+@media (min-width: 600px) {
+  #target, .char-form, .actions {
+    width: auto;
+    margin: 0 auto;
+  }
+
+  .char-input {
+    width: auto;
+  }
+
+  .actions button {
+    width: 97px;
+    float: left;
+    margin-right: 4px;
+  }
+}
