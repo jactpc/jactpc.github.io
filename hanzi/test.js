@@ -28,7 +28,7 @@ async function updateCharacters() {
     charContainer.style.display = 'inline-block';
     charContainer.style.margin = '10px';
     charContainer.style.textAlign = 'center';
-    charContainer.style.width = '300px';
+    charContainer.style.width = '880px';
 
     // Añade el div del carácter al contenedor
     charContainer.appendChild(charDiv);
@@ -38,8 +38,8 @@ async function updateCharacters() {
 
     // Ahora el div `char-${i}` está en el DOM, podemos crear el writer
     const writer = HanziWriter.create(charDiv.id, char, {
-      width: 300,
-      height: 300,
+      width: 880,
+      height: 880,
       padding: 5,
       showCharacter: true,
       showOutline: true,

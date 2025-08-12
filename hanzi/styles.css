@@ -35,7 +35,7 @@ button, #target {
   clear: both;
   border: 1px solid black;
   margin: 0 auto;
-  width: 400px;
+  width: 900px;
   /* height: auto;  opcional si quieres autoajuste */
 }
 
