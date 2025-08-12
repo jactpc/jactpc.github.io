@@ -1,94 +1,28 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-    <meta charset="utf-8" />
-    <title>Hanzi Writer</title>
-    <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.10.4/polyfill.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
-  </head>
-  <body>
-    <h1 class="title">Hanzi Writer</h1>
-    <form class="js-char-form char-form">
-      <label>
-        Character(s)
-        <input type="text" class="js-char char-input" size="10" maxlength="20" value="我爱你" />
-      </label>
-      <button type="submit">Update</button>
-    </form>
+<head>
+  <meta charset="utf-8" />
+  <title>Hanzi Writer</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.10.4/polyfill.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+</head>
+<body>
+  <h1 class="title">Hanzi Writer</h1>
 
-    <div class="actions">
-      <button class="js-toggle">Show/hide</button>
-      <button class="js-toggle-hint">Outline on/off</button>
-      <button class="js-animate">Animate</button>
-      <button class="js-quiz">Quiz yourself</button>
-    </div>
+  <form class="js-char-form char-form">
+    <label>
+      Character(s)
+      <input type="text" class="js-char char-input" size="10" maxlength="20" value="我爱你" />
+    </label>
+    <button type="submit">Update</button>
+  </form>
 
-    <div id="target"></div>
-	<div id="characters"></div>
-	<div id="translations"></div>
+  <div id="target"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
-	<script type="application/javascript" src="test.js"></script>
-    <script>
-      async function fetchTranslation(text) {
-        try {
-          const response = await fetch(`https://lingva.ml/api/v1/zh/en/${encodeURIComponent(text)}`);
-          const data = await response.json();
-          return {
-            en: data.translation,
-            es: (await (await fetch(`https://lingva.ml/api/v1/zh/es/${encodeURIComponent(text)}`)).json()).translation
-          };
-        } catch (e) {
-          return { en: 'Error', es: 'Error' };
-        }
-      }
+  <div id="translations"></div>
 
-      async function renderCharacters(text) {
-        const container = document.getElementById('characters');
-        const translationBox = document.getElementById('translations');
-        container.innerHTML = '';
-        translationBox.innerHTML = '';
-
-        const characters = text.split('');
-        for (let i = 0; i < characters.length; i++) {
-          const ch = characters[i];
-          const div = document.createElement('div');
-          div.id = `char-${i}`;
-          div.style.display = 'inline-block';
-          div.style.margin = '10px';
-          container.appendChild(div);
-
-          HanziWriter.create(`char-${i}`, ch, {
-            width: 100,
-            height: 100,
-            padding: 5,
-            showOutline: true,
-            showCharacter: false
-          });
-        }
-
-        const pinyin = window.pinyinPro.pinyin(text, { toneType: 'marks' });
-        const trans = await fetchTranslation(text);
-
-        translationBox.innerHTML = `
-          <p><strong>Characters:</strong> ${text}</p>
-          <p><strong>Pīnyīn:</strong> ${pinyin}</p>
-          <p><strong>Inglés:</strong> ${trans.en}</p>
-          <p><strong>Español:</strong> ${trans.es}</p>
-        `;
-      }
-
-      document.querySelector('.js-char-form').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const text = document.querySelector('.js-char').value.trim();
-        if (text) renderCharacters(text);
-      });
-
-      window.addEventListener('DOMContentLoaded', () => {
-        const defaultText = document.querySelector('.js-char').value;
-        renderCharacters(defaultText);
-      });
-    </script>
-  </body>
+  <script type="application/javascript" src="test.js"></script>
+</body>
 </html>
