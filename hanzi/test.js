@@ -28,7 +28,7 @@ async function updateCharacters() {
     charContainer.style.display = 'inline-block';
     charContainer.style.margin = '10px';
     charContainer.style.textAlign = 'center';
-    charContainer.style.width = '880px';
+    charContainer.style.width = '890px';
 
     // Añade el div del carácter al contenedor
     charContainer.appendChild(charDiv);
