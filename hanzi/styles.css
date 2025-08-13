@@ -9,7 +9,9 @@ body, html {
 * {
   box-sizing: border-box;
 }
-
+label, p{
+  font-size: 50px;
+}
 input, button {
   outline: none;
 }
@@ -41,27 +43,29 @@ button, #target {
 
 /* También haz que el formulario y los botones tengan anchura fluida */
 .char-form {
-  margin: 0 0 20px;
-  max-width: 400px;
-  width: 95%;
-  margin-left: auto;
-  margin-right: auto;
+      margin: 0 0 20px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .char-form button {
-  padding: 8px 5px;
-  line-height: 14px;
-  display: inline-block;
-  vertical-align: top;
+    padding: 8px 5px;
+    line-height: 14px;
+    display: inline-block;
+    vertical-align: top;
+    width: 50%;
+    height: 80px;
+    margin-top: 10px;
 }
 
 .char-input {
-  font-size: 36px;
-  padding: 5px;
-  text-align: center;
-  width: calc(100% - 90px); /* Deja espacio para el botón */
-  max-width: 300px;
-  box-sizing: border-box;
+  font-size: 100px;
+    padding: 5px;
+    text-align: center;
+    width: calc(100% - 10px);
+    /* max-width: 300px; */
+    box-sizing: border-box;
 }
 
 /* El contenedor de botones independientes (si usas .actions, si no eliminar) */
@@ -84,12 +88,14 @@ button, #target {
 /* Estilos generales para botones */
 button {
   background: none;
-  color: #444;
-  cursor: pointer;
-  transition: all 300ms;
-  border-radius: 13px;
-  padding: 4px;
-  font-size: 23px;
+    color: #444;
+    cursor: pointer;
+    transition: all 300ms;
+    border-radius: 13px;
+    font-size: 23px;
+    width: 100px;
+    height: auto;
+    font-size: 40px;
 }
 
 button:hover {
