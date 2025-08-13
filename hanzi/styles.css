@@ -11,6 +11,8 @@ body, html {
 }
 label, p{
   font-size: 50px;
+  margin: 5px;
+  padding: 5px;
 }
 input, button {
   outline: none;
@@ -38,7 +40,23 @@ button, #target {
   border: 1px solid black;
   margin: 0 auto;
   width: 900px;
-  /* height: auto;  opcional si quieres autoajuste */
+  padding: 0 50px;
+}
+.title_pinyin{
+  font-size: 50px;
+  margin-top: 20px;
+}
+
+.con-hanzi{
+  display: inline-block;
+  text-align: center;
+  width: 810px;
+  margin-bottom: 50px;
+  border-Radius: 10px;
+  padding-top: 20px;
+}
+.hanzi-char{
+  border-radius: 10px;
 }
 
 /* También haz que el formulario y los botones tengan anchura fluida */

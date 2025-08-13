@@ -9,26 +9,37 @@ async function updateCharacters() {
   const container = document.getElementById('target');
   container.innerHTML = ''; // limpiar todo antes
 
-  const text = document.querySelector('.js-char').value.trim();
-  window.location.hash = encodeURIComponent(text);
+  const texto_full = document.querySelector('.js-char').value.trim();
+
+  let text = document.querySelector('.js-char').value.trim();
+  
+  // Filtrar: solo caracteres CJK (chinos)
+  text = text.replace(/[^\u4E00-\u9FFF]/g, '');
+
+  window.location.hash = encodeURIComponent(texto_full);
 
   writers = [];
 
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
 
+    const pinyinChar = window.pinyinPro.pinyin(char, { toneType: 'marks' });
+
     // Crea el div para el carácter
     const charDiv = document.createElement('div');
+    charDiv.className="hanzi-char";
     charDiv.id = `char-${i}`;
-    //charDiv.style.width = '120px';
-    //charDiv.style.height = '120px';
+    charDiv.style.border = '10px solid';
+
+    // Título con el pinyin
+    const titleDiv = document.createElement('div');
+    titleDiv.className="title_pinyin";
+    titleDiv.textContent = pinyinChar;
+    container.appendChild(titleDiv);
 
     // Crea el contenedor que también tendrá los botones
     const charContainer = document.createElement('div');
-    charContainer.style.display = 'inline-block';
-    charContainer.style.margin = '10px';
-    charContainer.style.textAlign = 'center';
-    charContainer.style.width = '890px';
+    charContainer.className="con-hanzi";
 
     // Añade el div del carácter al contenedor
     charContainer.appendChild(charDiv);
@@ -38,8 +49,8 @@ async function updateCharacters() {
 
     // Ahora el div `char-${i}` está en el DOM, podemos crear el writer
     const writer = HanziWriter.create(charDiv.id, char, {
-      width: 880,
-      height: 880,
+      width: 800,
+      height: 800,
       padding: 5,
       showCharacter: true,
       showOutline: true,
@@ -102,32 +113,36 @@ async function updateCharacters() {
 
     // Añadir todo al contenedor principal
     container.appendChild(charContainer);
+    container.appendChild(document.createElement('hr'));
   }
 
   // Actualizar traducción y pinyin global para todo el texto
-  await updateTranslationAndPinyin(text);
+  await updateTranslationAndPinyin(texto_full);
 }
 
 // Traducción y pinyin
-async function fetchTranslation(text) {
+async function fetchTranslation(texto_full) {
   try {
-    const response = await fetch(`https://lingva.ml/api/v1/zh/en/${encodeURIComponent(text)}`);
+    const response = await fetch(`https://lingva.ml/api/v1/zh/en/${encodeURIComponent(texto_full)}`);
     const data = await response.json();
     return {
       en: data.translation,
-      es: (await (await fetch(`https://lingva.ml/api/v1/zh/es/${encodeURIComponent(text)}`)).json()).translation
+      es: (await (await fetch(`https://lingva.ml/api/v1/zh/es/${encodeURIComponent(texto_full)}`)).json()).translation,
+      zh_tr: (await (await fetch(`https://lingva.ml/api/v1/zh/zh_HANT/${encodeURIComponent(texto_full)}`)).json()).translation,
+      zh_simp: (await (await fetch(`https://lingva.ml/api/v1/zh/zh/${encodeURIComponent(texto_full)}`)).json()).translation,
     };
   } catch (e) {
     return { en: 'Error', es: 'Error' };
   }
 }
 
-async function updateTranslationAndPinyin(text) {
+async function updateTranslationAndPinyin(texto_full) {
   const translationBox = document.getElementById('translations');
-  const pinyin = window.pinyinPro.pinyin(text, { toneType: 'marks' });
-  const trans = await fetchTranslation(text);
+  const pinyin = window.pinyinPro.pinyin(texto_full, { toneType: 'marks' });
+  const trans = await fetchTranslation(texto_full);
   translationBox.innerHTML = `
-    <p><strong>Characters:</strong> ${text}</p>
+    <p><strong>Simplificado:</strong> ${trans.zh_simp}</p>
+    <p><strong>Tradicional:</strong> ${trans.zh_tr}</p>
     <p><strong>Pīnyīn:</strong> ${pinyin}</p>
     <p><strong>Inglés:</strong> ${trans.en}</p>
     <p><strong>Español:</strong> ${trans.es}</p>
