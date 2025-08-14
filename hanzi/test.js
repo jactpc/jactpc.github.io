@@ -96,8 +96,8 @@ async function updateCharacters() {
 
     // Ahora el div `char-${i}` está en el DOM, podemos crear el writer
     const writer = HanziWriter.create(charDiv.id, char, {
-      width: 800,
-      height: 800,
+      width: 700,
+      height: 700,
       padding: 5,
       showCharacter: true,
       showOutline: true,
@@ -173,7 +173,7 @@ async function updateCharacters() {
   if (submitBtn) submitBtn.disabled = false;
 }
 
-// Traducción y pinyin
+// Traducción
 async function fetchTranslation(texto_full) {
   try {
     const encText = encodeURIComponent(texto_full);
@@ -208,20 +208,28 @@ async function updateTranslationAndPinyin(texto_full) {
 
   // Botón de audio (usa Google Translate TTS)
   const audioBt_ZHCN = `
-    <button id="btnAudio_zhcn" title="Reproducir pronunciación Chino" style="margin-left: 5px;">🔊 1x</button>
-    <button id="btnAudio_zhcn_slow" title="Reproducir pronunciación Chino lento" style="margin-left: 5px;">🐢 0.6x</button>`;
+    <button id="btnAudio_zhcn" title="Reproducir pronunciación Chino">🔊 1x</button>
+    <button id="btnAudio_zhcn_slow" title="Reproducir pronunciación Chino lento">🐢 0.6x</button>`;
   const audioBt_EN = `
-    <button id="btnAudio_en" title="Reproducir pronunciación en Ingles" style="margin-left: 5px;">🔊 1x</button>
+    <button id="btnAudio_en" title="Reproducir pronunciación en Ingles">🔊 1x</button>
     <button id="btnAudio_en_slow" title="Reproducir pronunciación en Ingles Lento" style="margin-left: 5px;">🐢 0.6x</button>`;
   const audioBt_ES = `
-    <button id="btnAudio_es" title="Reproducir pronunciación en Español" style="margin-left: 5px;">🔊 1x</button>`;
+    <button id="btnAudio_es" title="Reproducir pronunciación en Español">🔊 1x</button>`;
 
   translationBox.innerHTML = `
-    <strong>简体中文:</strong><p> ${trans.zh_simp} ${audioBt_ZHCN} </p>
-    <strong>繁体中文:</strong><p> ${trans.zh_tr}</p>
-    <strong>Pīnyīn:</strong><p> ${pinyin}</p>
-    <strong>English:</strong><p> ${trans.en} ${audioBt_EN}</p>
-    <strong>Español:</strong><p> ${trans.es} ${audioBt_ES}</p>
+    <div class="zh">
+      <div class="zh_full">
+        <strong>简体中文: </strong>
+        <p> ${trans.zh_simp} </p>
+        <strong>繁体中文:</strong>
+        <p> ${trans.zh_tr}</p>
+        <strong>Pīnyīn:</strong>
+        <p> ${pinyin}</p>
+      </div>
+      ${audioBt_ZHCN}
+    </div>
+    <strong>English: </strong><div class="trans"><p> ${trans.en}</p>${audioBt_EN}</div>
+    <strong>Español: </strong><div class="trans"><p> ${trans.es}</p>${audioBt_ES}</div>
   `;
 
 // Botones de audio normal

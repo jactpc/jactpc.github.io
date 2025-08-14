@@ -11,7 +11,7 @@ body, html {
 }
 p{
   font-size: 40px;
-  margin: 5px;
+  margin: 0 0 0 50px;
   padding: 5px;
 }
 input, button {
@@ -68,6 +68,12 @@ button, #target {
     width: 900px;
     margin: 10px auto;
     border-radius: 10px;
+}
+#translations .trans, #translations .zh{
+  display: flex;
+}
+.zh_full, .trans p{
+  flex:1;
 }
 /* También haz que el formulario y los botones tengan anchura fluida */
 .char-form {
