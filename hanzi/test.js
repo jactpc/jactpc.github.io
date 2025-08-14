@@ -17,6 +17,21 @@ function attachAudioButton(buttonId, text, lang, speed = 1.0) {
   });
 }
 
+async function playLingvaAudio(lang, text, speed = 1.0) {
+  const url = `https://lingva.ml/api/v1/audio/${lang}/${encodeURIComponent(text)}`;
+  
+  const res = await fetch(url);
+  const data = await res.json();
+  
+  // Convierte el array en Uint8Array → Blob
+  const audioBytes = new Uint8Array(data.audio);
+  const blob = new Blob([audioBytes], { type: 'audio/mpeg' });
+  
+  const audio = new Audio(URL.createObjectURL(blob));
+  audio.playbackRate = speed;
+  audio.play();
+}
+
 async function updateCharacters() {
   const container = document.getElementById('target');
   container.innerHTML = ''; // limpiar todo antes
@@ -52,7 +67,8 @@ async function updateCharacters() {
 
     const titleAudio = document.createElement('button');
     titleAudio.className="pinyin_audio";
-    titleAudio.textContent = "🔊";
+    titleAudio.textContent = "🔊98";
+    titleAudio.addEventListener("click", () => { playLingvaAudio("zh", char); });
     titleAudio.id=`pinyin_audio_${i}`;
     container.appendChild(titleAudio);
 
@@ -62,13 +78,14 @@ async function updateCharacters() {
     titleAudioslow.id=`pinyin_audio_slow_${i}`;
     container.appendChild(titleAudioslow);
 
-    attachAudioButton(`pinyin_audio_${i}`, char, "zh-CN", 1.0);
+    //attachAudioButton(`pinyin_audio_${i}`, char, "zh-CN", 1.0);
     attachAudioButton(`pinyin_audio_slow_${i}`, char, "zh-CN", 0.75);
 
     // Crea el contenedor que también tendrá los botones
     const charContainer = document.createElement('div');
     charContainer.className="con-hanzi";
 
+    charContainer.appendChild(titleDiv);
     // Añade el div del carácter al contenedor
     charContainer.appendChild(charDiv);
 
@@ -90,7 +107,7 @@ async function updateCharacters() {
 
     // Crear contenedor para botones
     const controlsDiv = document.createElement('div');
-    controlsDiv.style.marginTop = '5px';
+    controlsDiv.className = "features_box";
 
     // Botón mostrar/ocultar carácter
     const btnToggleChar = document.createElement('button');
@@ -145,7 +162,6 @@ async function updateCharacters() {
 
     // Añadir todo al contenedor principal
     container.appendChild(charContainer);
-    container.appendChild(document.createElement('hr'));
   }
 
   // Actualizar traducción y pinyin global para todo el texto
