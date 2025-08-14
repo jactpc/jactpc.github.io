@@ -33,7 +33,6 @@ button, #target {
   text-shadow: 0 0 15px #4B89DB;
 }
 
-/* Estilo base para #target: ocupa el 95% del ancho, con máximo 400px y centrado */
 #target {
   background: white;
   clear: both;
@@ -56,6 +55,7 @@ button, #target {
   padding-top: 20px;
 }
 .hanzi-char{
+  box-shadow: 0 1px 5px rgb(0 0 0 / 67%);
   border-radius: 10px;
 }
 #translations{
@@ -66,10 +66,8 @@ button, #target {
 }
 /* También haz que el formulario y los botones tengan anchura fluida */
 .char-form {
-      margin: 0 0 20px;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
+    margin: auto;
+    width: 878px;
 }
 
 
@@ -87,8 +85,7 @@ button, #target {
 .char-input {
   flex: 1;
   font-size: 100px;
-  padding: 5px 90px 5px 5px;
-  text-align: center;
+  padding: 5px 90px 5px 40px;
   border-radius: 10px;
   box-sizing: border-box;
   border: 0px;

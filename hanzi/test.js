@@ -43,7 +43,6 @@ async function updateCharacters() {
     const charDiv = document.createElement('div');
     charDiv.className="hanzi-char";
     charDiv.id = `char-${i}`;
-    charDiv.style.border = '10px solid';
 
     // Título con el pinyin
     const titleDiv = document.createElement('div');
