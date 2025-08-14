@@ -75,7 +75,9 @@ button, #target {
     width: 830px;
 }
 
-
+strong{
+  font-size: 20px;
+}
 .form-label {
   display: block;
   margin: 5px 0;

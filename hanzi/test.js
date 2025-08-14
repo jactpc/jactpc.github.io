@@ -8,28 +8,32 @@ function printStrokePoints(data) {
 function attachAudioButton(buttonId, text, lang, speed = 1.0) {
   const btn = document.getElementById(buttonId);
   if (!btn) return;
-  btn.addEventListener("click", () => {
-    const audio = new Audio(
-      `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodeURIComponent(text)}`
-    );
-    audio.playbackRate = speed; // velocidad personalizada
-    audio.play();
-  });
-}
 
-async function playLingvaAudio(lang, text, speed = 1.0) {
-  const url = `https://lingva.ml/api/v1/audio/${lang}/${encodeURIComponent(text)}`;
-  
-  const res = await fetch(url);
-  const data = await res.json();
-  
-  // Convierte el array en Uint8Array → Blob
-  const audioBytes = new Uint8Array(data.audio);
-  const blob = new Blob([audioBytes], { type: 'audio/mpeg' });
-  
-  const audio = new Audio(URL.createObjectURL(blob));
-  audio.playbackRate = speed;
-  audio.play();
+  btn.addEventListener("click", async () => {
+    try {
+      btn.disabled = true; // Bloquear botón
+
+      const url = `https://lingva.ml/api/v1/audio/${lang}/${encodeURIComponent(text)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      // Convierte el array de bytes a Blob
+      const audioBytes = new Uint8Array(data.audio);
+      const blob = new Blob([audioBytes], { type: "audio/mpeg" });
+
+      const audio = new Audio(URL.createObjectURL(blob));
+      audio.playbackRate = speed;
+
+      audio.addEventListener("ended", () => {
+        btn.disabled = false; // Reactivar botón
+      });
+
+      await audio.play();
+    } catch (err) {
+      console.error("Error reproduciendo audio:", err);
+      btn.disabled = false; // Reactivar en caso de error
+    }
+  });
 }
 
 async function updateCharacters() {
@@ -67,25 +71,23 @@ async function updateCharacters() {
 
     const titleAudio = document.createElement('button');
     titleAudio.className="pinyin_audio";
-    titleAudio.textContent = "🔊98";
-    titleAudio.addEventListener("click", () => { playLingvaAudio("zh", char); });
+    titleAudio.textContent = "🔊 1x";
     titleAudio.id=`pinyin_audio_${i}`;
     container.appendChild(titleAudio);
 
     const titleAudioslow = document.createElement('button');
     titleAudioslow.className="pinyin_audio_slow";
-    titleAudioslow.textContent = "🐢";
+    titleAudioslow.textContent = "🐢 0.6x";
     titleAudioslow.id=`pinyin_audio_slow_${i}`;
     container.appendChild(titleAudioslow);
 
-    //attachAudioButton(`pinyin_audio_${i}`, char, "zh-CN", 1.0);
-    attachAudioButton(`pinyin_audio_slow_${i}`, char, "zh-CN", 0.75);
+    attachAudioButton(`pinyin_audio_${i}`, char, "zh", 1.0);
+    attachAudioButton(`pinyin_audio_slow_${i}`, char, "zh", 0.6);
 
     // Crea el contenedor que también tendrá los botones
     const charContainer = document.createElement('div');
     charContainer.className="con-hanzi";
 
-    charContainer.appendChild(titleDiv);
     // Añade el div del carácter al contenedor
     charContainer.appendChild(charDiv);
 
@@ -206,32 +208,30 @@ async function updateTranslationAndPinyin(texto_full) {
 
   // Botón de audio (usa Google Translate TTS)
   const audioBt_ZHCN = `
-    <button id="btnAudio_zhcn" title="Reproducir pronunciación Chino" style="margin-left: 5px;">🔊</button>
-    <button id="btnAudio_zhcn_slow" title="Reproducir pronunciación Chino lento" style="margin-left: 5px;">🐢</button>`;
+    <button id="btnAudio_zhcn" title="Reproducir pronunciación Chino" style="margin-left: 5px;">🔊 1x</button>
+    <button id="btnAudio_zhcn_slow" title="Reproducir pronunciación Chino lento" style="margin-left: 5px;">🐢 0.6x</button>`;
   const audioBt_EN = `
-    <button id="btnAudio_en" title="Reproducir pronunciación en Ingles" style="margin-left: 5px;">🔊</button>
-    <button id="btnAudio_en_slow" title="Reproducir pronunciación en Ingles Lento" style="margin-left: 5px;">🐢</button>`;
+    <button id="btnAudio_en" title="Reproducir pronunciación en Ingles" style="margin-left: 5px;">🔊 1x</button>
+    <button id="btnAudio_en_slow" title="Reproducir pronunciación en Ingles Lento" style="margin-left: 5px;">🐢 0.6x</button>`;
+  const audioBt_ES = `
+    <button id="btnAudio_es" title="Reproducir pronunciación en Español" style="margin-left: 5px;">🔊 1x</button>`;
 
   translationBox.innerHTML = `
-    <p>
-      <strong>简体中文:</strong> ${trans.zh_simp}
-      ${audioBt_ZHCN}
-    </p>
-    <p><strong>繁体中文:</strong> ${trans.zh_tr}</p>
-    <p><strong>Pīnyīn:</strong> ${pinyin}</p>
-    <p><strong>EN:</strong> ${trans.en}
-      ${audioBt_EN}
-    </p>
-    <p><strong>ES:</strong> ${trans.es}</p>
+    <strong>简体中文:</strong><p> ${trans.zh_simp} ${audioBt_ZHCN} </p>
+    <strong>繁体中文:</strong><p> ${trans.zh_tr}</p>
+    <strong>Pīnyīn:</strong><p> ${pinyin}</p>
+    <strong>English:</strong><p> ${trans.en} ${audioBt_EN}</p>
+    <strong>Español:</strong><p> ${trans.es} ${audioBt_ES}</p>
   `;
 
 // Botones de audio normal
-attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh-CN", 1.0);
+attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh", 1.0);
 attachAudioButton("btnAudio_en", trans.en, "en", 1.0);
+attachAudioButton("btnAudio_es", trans.es, "es", 1.0);
 
 // Botones de audio lento
-attachAudioButton("btnAudio_zhcn_slow", trans.zh_simp, "zh-CN", 0.75);
-attachAudioButton("btnAudio_en_slow", trans.en, "en", 0.75);
+attachAudioButton("btnAudio_zhcn_slow", trans.zh_simp, "zh", 0.6);
+attachAudioButton("btnAudio_en_slow", trans.en, "en", 0.6);
 
 
 }
