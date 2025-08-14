@@ -11,20 +11,17 @@
 <body>
   <h1 class="title">Hanzi Writer by JACTPCL</h1>
 
-  <form class="js-char-form char-form">
-    <label>
-      Character(s)
-      <input type="text" class="js-char char-input" size="10" maxlength="20" value="我爱你" />
-    </label>
-    <button type="submit">Update</button>
-  </form>
+<form class="js-char-form char-form">
+  <label for="char-input" class="form-label">Character(s)</label>
+  <div class="form-row">
+    <input type="text" id="char-input" class="js-char char-input" size="10" maxlength="20" value="我爱你" />
+    <button type="submit" id="Update">🔎</button>
+  </div>
+</form>
 
-  <div id="translations"><p>Cargando Datos, Espere...</p></div>
+  <div id="translations"></div>
 
   <div id="target"></div>
-
-
-
   <script type="application/javascript" src="test.js"></script>
 </body>
 </html>

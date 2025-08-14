@@ -9,15 +9,15 @@ body, html {
 * {
   box-sizing: border-box;
 }
-label, p{
-  font-size: 50px;
+p{
+  font-size: 40px;
   margin: 5px;
   padding: 5px;
 }
 input, button {
   outline: none;
 }
-button, #target, .title {
+button, #target, .title, #translations, .char-input {
   box-shadow: 0 1px 5px rgba(0,0,0,0.15);
 }
 
@@ -37,10 +37,10 @@ button, #target {
 #target {
   background: white;
   clear: both;
-  border: 1px solid black;
   margin: 0 auto;
   width: 900px;
   padding: 0 50px;
+  border-radius: 10px;
 }
 .title_pinyin{
   font-size: 50px;
@@ -58,7 +58,12 @@ button, #target {
 .hanzi-char{
   border-radius: 10px;
 }
-
+#translations{
+  background: white;
+    width: 900px;
+    margin: 10px auto;
+    border-radius: 10px;
+}
 /* También haz que el formulario y los botones tengan anchura fluida */
 .char-form {
       margin: 0 0 20px;
@@ -67,23 +72,33 @@ button, #target {
     margin-right: auto;
 }
 
-.char-form button {
-    padding: 8px 5px;
-    line-height: 14px;
-    display: inline-block;
-    vertical-align: top;
-    width: 50%;
-    height: 80px;
-    margin-top: 10px;
+
+.form-label {
+  display: block;
+  margin: 5px 0;
+  padding: 5px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
 }
 
 .char-input {
+  flex: 1;
   font-size: 100px;
-    padding: 5px;
-    text-align: center;
-    width: calc(100% - 10px);
-    /* max-width: 300px; */
-    box-sizing: border-box;
+  padding: 5px 90px 5px 5px;
+  text-align: center;
+  border-radius: 10px;
+  box-sizing: border-box;
+  border: 0px;
+}
+
+#Update {
+    padding: 13px;
+    font-size: 40px;
+    border-radius: 44px;
+    margin-left: -79px;
 }
 
 /* El contenedor de botones independientes (si usas .actions, si no eliminar) */
@@ -110,12 +125,13 @@ button {
     cursor: pointer;
     transition: all 300ms;
     border-radius: 13px;
-    font-size: 23px;
-    width: 100px;
     height: auto;
     font-size: 40px;
+    border: 0px;
 }
-
+.features{
+  width: 100px;
+}
 button:hover {
   color: #1e6cd2;
   border: 1px solid #1e6cd2;

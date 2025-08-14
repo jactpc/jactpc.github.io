@@ -5,24 +5,38 @@ function printStrokePoints(data) {
   console.log(`[${pointStrs.join(', ')}]`);
 }
 
+function attachAudioButton(buttonId, text, lang, speed = 1.0) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    const audio = new Audio(
+      `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodeURIComponent(text)}`
+    );
+    audio.playbackRate = speed; // velocidad personalizada
+    audio.play();
+  });
+}
+
 async function updateCharacters() {
   const container = document.getElementById('target');
   container.innerHTML = ''; // limpiar todo antes
 
   const texto_full = document.querySelector('.js-char').value.trim();
 
-  let text = document.querySelector('.js-char').value.trim();
-  
-  // Filtrar: solo caracteres CJK (chinos)
-  text = text.replace(/[^\u4E00-\u9FFF]/g, '');
+  let text = texto_full.replace(/[^\u4E00-\u9FFF]/g, '');
 
   window.location.hash = encodeURIComponent(texto_full);
+
+  // Bloquear botón y mostrar mensaje de carga
+  const submitBtn = document.querySelector('#Update');
+  const translationBox = document.getElementById('translations');
+  if (submitBtn) submitBtn.disabled = true;
+  translationBox.innerHTML = `<p style="color: gray;">⏳ Obteniendo datos...</p>`;
 
   writers = [];
 
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-
     const pinyinChar = window.pinyinPro.pinyin(char, { toneType: 'marks' });
 
     // Crea el div para el carácter
@@ -36,6 +50,21 @@ async function updateCharacters() {
     titleDiv.className="title_pinyin";
     titleDiv.textContent = pinyinChar;
     container.appendChild(titleDiv);
+
+    const titleAudio = document.createElement('button');
+    titleAudio.className="pinyin_audio";
+    titleAudio.textContent = "🔊";
+    titleAudio.id=`pinyin_audio_${i}`;
+    container.appendChild(titleAudio);
+
+    const titleAudioslow = document.createElement('button');
+    titleAudioslow.className="pinyin_audio_slow";
+    titleAudioslow.textContent = "🐢";
+    titleAudioslow.id=`pinyin_audio_slow_${i}`;
+    container.appendChild(titleAudioslow);
+
+    attachAudioButton(`pinyin_audio_${i}`, char, "zh-CN", 1.0);
+    attachAudioButton(`pinyin_audio_slow_${i}`, char, "zh-CN", 0.75);
 
     // Crea el contenedor que también tendrá los botones
     const charContainer = document.createElement('div');
@@ -68,6 +97,7 @@ async function updateCharacters() {
     const btnToggleChar = document.createElement('button');
     btnToggleChar.innerHTML = '👁'; //textContent = 'Show/Hide';
     btnToggleChar.title = "Show/Hide character";  // <-- Tooltip
+    btnToggleChar.className = "features";
     let charVisible = true;
     btnToggleChar.onclick = () => {
       if (charVisible) writer.hideCharacter();
@@ -80,6 +110,7 @@ async function updateCharacters() {
     const btnToggleOutline = document.createElement('button');
     btnToggleOutline.innerHTML = '🖋';//.textContent = 'Outline On/Off';
     btnToggleOutline.title = "Show/Hide outline";  // <-- Tooltip
+    btnToggleOutline.className = "features";
     let outlineVisible = true;
     btnToggleOutline.style.marginLeft = '5px';
     btnToggleOutline.onclick = () => {
@@ -92,6 +123,7 @@ async function updateCharacters() {
     // Botón animar
     const btnAnimate = document.createElement('button');
     btnAnimate.innerHTML = '▶️';//.textContent = 'Animate';
+    btnAnimate.className = "features";
     btnAnimate.title = "Animate character";  // <-- Tooltip
     btnAnimate.style.marginLeft = '5px';
     btnAnimate.onclick = () => writer.animateCharacter();
@@ -100,6 +132,7 @@ async function updateCharacters() {
     // Botón quiz
     const btnQuiz = document.createElement('button');
     btnQuiz.innerHTML = '❓';//.textContent = 'Quiz';
+    btnQuiz.className = "features";
     btnQuiz.title = "Quiz yourself";  // <-- Tooltip
     btnQuiz.style.marginLeft = '5px';
     btnQuiz.onclick = () => writer.quiz({ showOutline: true });
@@ -118,35 +151,74 @@ async function updateCharacters() {
 
   // Actualizar traducción y pinyin global para todo el texto
   await updateTranslationAndPinyin(texto_full);
+
+  // Desbloquear botón
+  if (submitBtn) submitBtn.disabled = false;
 }
 
 // Traducción y pinyin
 async function fetchTranslation(texto_full) {
   try {
-    const response = await fetch(`https://lingva.ml/api/v1/zh/en/${encodeURIComponent(texto_full)}`);
-    const data = await response.json();
+    const encText = encodeURIComponent(texto_full);
+
+    const urls = [
+      `https://lingva.ml/api/v1/zh/en/${encText}`,
+      `https://lingva.ml/api/v1/zh/es/${encText}`,
+      `https://lingva.ml/api/v1/zh/zh_HANT/${encText}`,
+      `https://lingva.ml/api/v1/zh/zh/${encText}`
+    ];
+
+    const [enData, esData, zhTrData, zhSimpData] = await Promise.all(
+      urls.map(url => fetch(url).then(res => res.json()))
+    );
+
     return {
-      en: data.translation,
-      es: (await (await fetch(`https://lingva.ml/api/v1/zh/es/${encodeURIComponent(texto_full)}`)).json()).translation,
-      zh_tr: (await (await fetch(`https://lingva.ml/api/v1/zh/zh_HANT/${encodeURIComponent(texto_full)}`)).json()).translation,
-      zh_simp: (await (await fetch(`https://lingva.ml/api/v1/zh/zh/${encodeURIComponent(texto_full)}`)).json()).translation,
+      en: enData.translation,
+      es: esData.translation,
+      zh_tr: zhTrData.translation,
+      zh_simp: zhSimpData.translation
     };
   } catch (e) {
-    return { en: 'Error', es: 'Error' };
+    return { en: 'Error', es: 'Error', zh_tr: 'Error', zh_simp: 'Error' };
   }
 }
+
 
 async function updateTranslationAndPinyin(texto_full) {
   const translationBox = document.getElementById('translations');
   const pinyin = window.pinyinPro.pinyin(texto_full, { toneType: 'marks' });
   const trans = await fetchTranslation(texto_full);
+
+  // Botón de audio (usa Google Translate TTS)
+  const audioBt_ZHCN = `
+    <button id="btnAudio_zhcn" title="Reproducir pronunciación Chino" style="margin-left: 5px;">🔊</button>
+    <button id="btnAudio_zhcn_slow" title="Reproducir pronunciación Chino lento" style="margin-left: 5px;">🐢</button>`;
+  const audioBt_EN = `
+    <button id="btnAudio_en" title="Reproducir pronunciación en Ingles" style="margin-left: 5px;">🔊</button>
+    <button id="btnAudio_en_slow" title="Reproducir pronunciación en Ingles Lento" style="margin-left: 5px;">🐢</button>`;
+
   translationBox.innerHTML = `
-    <p><strong>Simplificado:</strong> ${trans.zh_simp}</p>
-    <p><strong>Tradicional:</strong> ${trans.zh_tr}</p>
+    <p>
+      <strong>简体中文:</strong> ${trans.zh_simp}
+      ${audioBt_ZHCN}
+    </p>
+    <p><strong>繁体中文:</strong> ${trans.zh_tr}</p>
     <p><strong>Pīnyīn:</strong> ${pinyin}</p>
-    <p><strong>Inglés:</strong> ${trans.en}</p>
-    <p><strong>Español:</strong> ${trans.es}</p>
+    <p><strong>EN:</strong> ${trans.en}
+      ${audioBt_EN}
+    </p>
+    <p><strong>ES:</strong> ${trans.es}</p>
   `;
+
+// Botones de audio normal
+attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh-CN", 1.0);
+attachAudioButton("btnAudio_en", trans.en, "en", 1.0);
+
+// Botones de audio lento
+attachAudioButton("btnAudio_zhcn_slow", trans.zh_simp, "zh-CN", 0.75);
+attachAudioButton("btnAudio_en_slow", trans.en, "en", 0.75);
+
+
 }
 
 window.onload = function () {
