@@ -62,7 +62,7 @@ const radicalVariants = {
   '一': ['一'],
   '丨': ['丨'],
   '丶': ['丶'],
-  '丿': ['丿'],
+  '丿': ['丿','乀','乁'], 
   '乙': ['乙','乚','乛'],
   '亅': ['亅'],
   '二': ['二'],
@@ -70,13 +70,13 @@ const radicalVariants = {
   '人': ['人','亻'],
   '儿': ['儿'],
   '入': ['入'],
-  '八': ['八'],
+  '八': ['八','丷'],
   '冂': ['冂'],
   '冖': ['冖'],
   '冫': ['冫'],
   '几': ['几','𠃌'],
   '凵': ['凵'],
-  '刀': ['刀','刂'],
+  '刀': ['刀','刂','刁'],
   '力': ['力'],
   '勹': ['勹'],
   '匕': ['匕'],
@@ -99,7 +99,7 @@ const radicalVariants = {
   '子': ['子'],
   '宀': ['宀'],
   '寸': ['寸'],
-  '小': ['小'],
+  '小': ['小','⺌','⺍'],
   '尢': ['尢'],
   '尸': ['尸'],
   '屮': ['屮'],
@@ -115,12 +115,12 @@ const radicalVariants = {
   '廾': ['廾'],
   '弋': ['弋'],
   '弓': ['弓'],
-  '彐': ['彐'],
+  '彐': ['彐','彑'],
   '彡': ['彡'],
   '彳': ['彳'],
   '心': ['心','忄'],
   '戈': ['戈'],
-  '戶': ['戶'],
+  '戶': ['戶','户'],
   '手': ['手','扌'],
   '支': ['支'],
   '攴': ['攴','夂'],
@@ -128,11 +128,11 @@ const radicalVariants = {
   '斗': ['斗'],
   '斤': ['斤'],
   '方': ['方'],
-  '无': ['无'],
+  '无': ['无','旡',],
   '日': ['日'],
   '曰': ['曰'],
   '月': ['月'],
-  '木': ['木'],
+  '木': ['木','朩'],
   '欠': ['欠'],
   '止': ['止'],
   '歹': ['歹'],
@@ -142,15 +142,15 @@ const radicalVariants = {
   '毛': ['毛'],
   '氏': ['氏'],
   '气': ['气'],
-  '水': ['水','氵'],
+  '水': ['水','氵','氺'],
   '火': ['火','灬'],
-  '爪': ['爪'],
+  '爪': ['爪','爫'],
   '父': ['父'],
   '爻': ['爻'],
   '爿': ['爿'],
   '片': ['片'],
   '牙': ['牙'],
-  '牛': ['牛','牜'],
+  '牛': ['牛','牜','⺧'],
   '犬': ['犬','犭'],
   '玄': ['玄'],
   '玉': ['玉','王'],
@@ -160,7 +160,7 @@ const radicalVariants = {
   '生': ['生'],
   '用': ['用'],
   '田': ['田'],
-  '疋': ['疋'],
+  '疋': ['疋','𤴔'],
   '疒': ['疒'],
   '癶': ['癶'],
   '白': ['白'],
@@ -175,13 +175,14 @@ const radicalVariants = {
   '禾': ['禾'],
   '穴': ['穴'],
   '立': ['立'],
-  '竹': ['竹'],
+  '竹': ['竹','⺮','ケ'],
   '米': ['米'],
   '糸': ['糸','纟'],
   '缶': ['缶'],
-  '网': ['网','罒'],
-  '羊': ['羊'],
+  '网': ['网','罒','罓'],
+  '羊': ['羊','⺶','⺷'],
   '羽': ['羽'],
+  '老': ['老','耂'],
   '而': ['而'],
   '耒': ['耒'],
   '耳': ['耳'],
@@ -216,14 +217,14 @@ const radicalVariants = {
   '辛': ['辛'],
   '辰': ['辰'],
   '辵': ['辶'],
-  '邑': ['邑'],
+  '邑': ['邑','阝'],
   '酉': ['酉'],
   '釆': ['釆'],
   '里': ['里'],
-  '金': ['金'],
+  '金': ['金','钅'],
   '長': ['長'],
   '門': ['門'],
-  '阜': ['阜'],
+  '阜': ['阜','⻏'],
   '隶': ['隶'],
   '隹': ['隹'],
   '雨': ['雨'],
@@ -237,14 +238,14 @@ const radicalVariants = {
   '頁': ['頁'],
   '風': ['風'],
   '飛': ['飛'],
-  '食': ['食'],
+  '食': ['食','饣'],
   '首': ['首'],
   '香': ['香'],
   '馬': ['馬'],
   '骨': ['骨'],
   '高': ['高'],
   '髟': ['髟'],
-  '鬥': ['鬥'],
+  '鬥': ['鬥','门'],
   '鬯': ['鬯'],
   '鬲': ['鬲'],
   '鬼': ['鬼'],
@@ -272,20 +273,26 @@ const radicalVariants = {
 
 
 
-    async function showRadical(char) {
-      const radLib = (await import('https://esm.sh/@nahanil/bushou')).default;
-      let radical = radLib.for(char);  // Ej: 亻
+async function showRadical(char) {
+  const radLib = (await import('https://esm.sh/@nahanil/bushou')).default;
+  let radical = radLib.for(char);  // Ej: 亻
 
-      if (radical === '*' || !radical) {
-        // Si la librería no lo reconoce, asumimos que el carácter es su propio radical
-        radical = char;
-      }
+  if (radical === '*' || !radical) {
+    radical = char; // si no lo reconoce, usamos el mismo carácter
+  }
 
-      const variants = Object.values(radicalVariants).find(arr => arr.includes(radical)) || [radical];
-      console.log(`Carácter: ${char}, Radical: ${radical}, Variantes: ${variants.join(' o ')}`);
-      
-      return variants.join(' o ');
-    }
+  // Buscar variantes conocidas
+  const variants = Object.values(radicalVariants).find(arr => arr.includes(radical)) || [radical];
+
+  // Siempre incluir el carácter buscado dentro de la lista de variantes
+  const allVariants = Array.from(new Set([...variants, char]));
+
+  // Mostrar en consola
+  console.log(`Carácter: ${char}, Radical: ${radical}, Variantes: ${allVariants.join(' , ')}`);
+
+  // Retornar como string
+  return allVariants.join(' , ');
+}
 
     // Crea el div para el carácter
     const charDiv = document.createElement('div');
@@ -302,7 +309,7 @@ const radicalVariants = {
     radicalDiv.className="radicalDiv";
     // Esperar el resultado de showRadical
     const { radical, example } = await showRadical(char);
-    radicalDiv.textContent = `${char} : ${await showRadical(char)}`;
+    radicalDiv.textContent = `Radical: ${char} - Variantes: ${await showRadical(char)}`;
     container.appendChild(radicalDiv);
 
     const titleAudio = document.createElement('button');
