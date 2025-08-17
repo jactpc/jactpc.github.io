@@ -3,8 +3,8 @@ body, html {
   margin: 0;
   padding: 0;
   text-align: center;
-  font-family: 'Raleway', sans-serif;
   font-size: 14px;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 * {
   box-sizing: border-box;
@@ -44,8 +44,11 @@ button, #target {
 .title_pinyin{
   font-size: 50px;
   padding-top: 20px;
+  color: #888;
 }
-
+.radicalDiv{
+  font-size: 30px;
+}
 .con-hanzi{
   display: inline-block;
   text-align: center;
@@ -85,8 +88,7 @@ strong{
   font-size: 20px;
 }
 .form-label {
-  display: block;
-  margin: 5px 0;
+  margin: 0 10px 0 0;
   padding: 5px;
 }
 
@@ -96,8 +98,8 @@ strong{
 }
 
 .char-input {
-  flex: 1;
-  font-size: 80px;
+  flex: 1 1 400px;
+  font-size: 40px;
   padding: 20px 90px 20px 40px;
   border-radius: 10px;
   box-sizing: border-box;
@@ -108,7 +110,7 @@ strong{
     padding: 13px;
     font-size: 40px;
     border-radius: 10px;
-    margin-left: -79px;
+    margin-left: 10px;
 }
 
 /* El contenedor de botones independientes (si usas .actions, si no eliminar) */
@@ -129,23 +131,21 @@ strong{
 }
 
 /* Estilos generales para botones */
+button:hover {
+    transform: translateY(-2px);
+}
 button {
-  background: none;
+  background: #fff;
     color: #444;
     cursor: pointer;
     transition: all 300ms;
     border-radius: 13px;
     height: auto;
     font-size: 40px;
-    border: 0px;
+    border: 1px solid #eee;
 }
 .features{
   width: 100px;
-}
-button:hover {
-  color: #1e6cd2;
-  border: 1px solid #1e6cd2;
-  box-shadow: none;
 }
 
 /* En pantallas pequeñas (ejemplo: 480px o menos) limitar ancho a 400px */
