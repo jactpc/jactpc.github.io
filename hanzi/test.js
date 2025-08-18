@@ -36,6 +36,35 @@ function attachAudioButton(buttonId, text, lang, speed = 1.0) {
   });
 }
 
+// Traducción
+async function fetchTranslation(texto_full, targets = ["en", "es", "zh_HANT", "zh"]) {
+  try {
+    const encText = encodeURIComponent(texto_full);
+
+    // Construir las URLs dinámicamente según los targets
+    const urls = targets.map(lang => 
+      `https://lingva.ml/api/v1/zh/${lang}/${encText}`
+    );
+
+    // Ejecutar en paralelo
+    const results = await Promise.all(
+      urls.map(url => fetch(url).then(res => res.json()))
+    );
+
+    // Armar el objeto de salida
+    const out = {};
+    targets.forEach((lang, i) => {
+      if (lang === "zh") out.zh_simp = results[i].translation;
+      else if (lang === "zh_HANT") out.zh_tr = results[i].translation;
+      else out[lang] = results[i].translation;
+    });
+
+    return out;
+  } catch (e) {
+    return { en: "Error", es: "Error", zh_tr: "Error", zh_simp: "Error" };
+  }
+}
+
 async function updateCharacters() {
   const container = document.getElementById('target');
   container.innerHTML = ''; // limpiar todo antes
@@ -286,7 +315,7 @@ async function updateCharacters() {
       const allVariants = Array.from(new Set([...variants, char]));
 
       // Mostrar en consola
-      console.log(`Carácter: ${char}, Radical: ${radical}, Variantes: ${allVariants.join(' , ')}`);
+      console.log(`Carácter: ${char}, Radicales: ${radical}, Variantes: ${allVariants.join(' , ')}`);
 
       // Retornar como string
       return allVariants.join(' , ');
@@ -297,17 +326,19 @@ async function updateCharacters() {
     charDiv.className="hanzi-char";
     charDiv.id = `char-${i}`;
 
+    //const transES = await fetchTranslation(char, ["es"]);
+
     // Título con el pinyin
     const titleDiv = document.createElement('div');
     titleDiv.className="title_pinyin";
-    titleDiv.textContent = pinyinChar;
+    titleDiv.textContent = `${char} ${pinyinChar}`;// (${transES.es})`;
     container.appendChild(titleDiv);
 
     const radicalDiv = document.createElement('div');
     radicalDiv.className="radicalDiv";
     // Esperar el resultado de showRadical
     const { radical, example } = await showRadical(char);
-    radicalDiv.textContent = `Radical: ${char} - Variantes: ${await showRadical(char)}`;
+    radicalDiv.textContent = `Radical: ${await showRadical(char)}`;
     container.appendChild(radicalDiv);
 
     const titleAudio = document.createElement('button');
@@ -406,7 +437,6 @@ async function updateCharacters() {
     // Añadir todo al contenedor principal
     container.appendChild(charContainer);
   }
-
   // Actualizar traducción y pinyin global para todo el texto
   await updateTranslationAndPinyin(texto_full);
 
@@ -414,96 +444,20 @@ async function updateCharacters() {
   if (submitBtn) submitBtn.disabled = false;
 }
 
-// Traducción
-async function fetchTranslation(texto_full) {
-  try {
-    const encText = encodeURIComponent(texto_full);
-
-    const urls = [
-      `https://lingva.ml/api/v1/zh/en/${encText}`,
-      `https://lingva.ml/api/v1/zh/es/${encText}`,
-      `https://lingva.ml/api/v1/zh/zh_HANT/${encText}`,
-      `https://lingva.ml/api/v1/zh/zh/${encText}`
-    ];
-
-    const [enData, esData, zhTrData, zhSimpData] = await Promise.all(
-      urls.map(url => fetch(url).then(res => res.json()))
-    );
-
-    return {
-      en: enData.translation,
-      es: esData.translation,
-      zh_tr: zhTrData.translation,
-      zh_simp: zhSimpData.translation
-    };
-  } catch (e) {
-    return { en: 'Error', es: 'Error', zh_tr: 'Error', zh_simp: 'Error' };
-  }
-}
-let openmoji = [];
-
-// Lista de palabras de relleno comunes en inglés
-const stopWords = ["the", "a", "an", "is", "are", "on", "in", "of", "and", "to", "for", "with", "by", "at", "from"];
-
-async function loadOpenmoji() {
-  const res = await fetch("https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.json");
-  openmoji = await res.json();
-}
-
-function addEmojiSmart(phrase) {
-  if (!openmoji.length) return "❓";
-
-  // Dividir frase y eliminar palabras de relleno
-  const words = phrase
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(word => !stopWords.includes(word));
-
-  if (!words.length) return "❓";
-
-  // 1. Buscar emoji que contenga todas las palabras
-  const match = openmoji.find(e => {
-    const text = e.annotation.toLowerCase();
-    const tags = Array.isArray(e.tags) ? e.tags.map(t => t.toLowerCase()) : [];
-    return words.every(word => text.includes(word) || tags.some(t => t.includes(word)));
-  });
-
-  if (match) return match.emoji;
-
-  // 2. Si no existe, buscar emojis individuales para cada palabra
-  const result = words.map(word => {
-    const single = openmoji.find(e => {
-      const text = e.annotation.toLowerCase();
-      const tags = Array.isArray(e.tags) ? e.tags.map(t => t.toLowerCase()) : [];
-      return text.includes(word) || tags.some(t => t.includes(word));
-    });
-    return single ? single.emoji : "❓";
-  });
-
-  return result.join(" ");
-}
-
-
 async function updateTranslationAndPinyin(texto_full) {
+  const trans = await fetchTranslation(texto_full);
   const translationBox = document.getElementById('translations');
   const pinyin = window.pinyinPro.pinyin(texto_full, { toneType: 'marks' });
-  const trans = await fetchTranslation(texto_full);
 
   // Botón de audio (usa Google Translate TTS)
   const audioBt_ZHCN = `
-    <button id="btnAudio_zhcn" title="Reproducir pronunciación Chino">🔊 1x</button>
-    <button id="btnAudio_zhcn_slow" title="Reproducir pronunciación Chino lento">🐢 0.6x</button>`;
+    <button id="btnAudio_zhcn" class="btnAudio" title="Reproducir pronunciación Chino">🔊 1x</button>
+    <button id="btnAudio_zhcn_slow" class="btnAudio" title="Reproducir pronunciación Chino lento">🐢 0.6x</button>`;
   const audioBt_EN = `
-    <button id="btnAudio_en" title="Reproducir pronunciación en Ingles">🔊 1x</button>
-    <button id="btnAudio_en_slow" title="Reproducir pronunciación en Ingles Lento" style="margin-left: 5px;">🐢 0.6x</button>`;
+    <button id="btnAudio_en" class="btnAudio" title="Reproducir pronunciación en Ingles">🔊 1x</button>
+    <button id="btnAudio_en_slow" class="btnAudio" title="Reproducir pronunciación en Ingles Lento"">🐢 0.6x</button>`;
   const audioBt_ES = `
-    <button id="btnAudio_es" title="Reproducir pronunciación en Español">🔊 1x</button>`;
-// Uso
-
-   if (!openmoji.length) await loadOpenmoji();
-  const emoji = addEmojiSmart(trans.en);
-
-
+    <button id="btnAudio_es" class="btnAudio" title="Reproducir pronunciación en Español">🔊 1x</button>`;
 
   translationBox.innerHTML = `
     <div class="zh">
@@ -519,19 +473,16 @@ async function updateTranslationAndPinyin(texto_full) {
     </div>
     <strong>English: </strong><div class="trans"><p> ${trans.en}</p>${audioBt_EN}</div>
     <strong>Español: </strong><div class="trans"><p> ${trans.es}</p>${audioBt_ES}</div>
-    <strong>Emoji: </strong><div class="trans"><p> ${emoji}</p></div>
   `;
 
-// Botones de audio normal
-attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh", 1.0);
-attachAudioButton("btnAudio_en", trans.en, "en", 1.0);
-attachAudioButton("btnAudio_es", trans.es, "es", 1.0);
+  // Botones de audio normal
+  attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh", 1.0);
+  attachAudioButton("btnAudio_en", trans.en, "en", 1.0);
+  attachAudioButton("btnAudio_es", trans.es, "es", 1.0);
 
-// Botones de audio lento
-attachAudioButton("btnAudio_zhcn_slow", trans.zh_simp, "zh", 0.6);
-attachAudioButton("btnAudio_en_slow", trans.en, "en", 0.6);
-
-
+  // Botones de audio lento
+  attachAudioButton("btnAudio_zhcn_slow", trans.zh_simp, "zh", 0.6);
+  attachAudioButton("btnAudio_en_slow", trans.en, "en", 0.6);
 }
 
 window.onload = function () {

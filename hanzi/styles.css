@@ -74,6 +74,8 @@ button, #target {
 }
 #translations .trans, #translations .zh{
   display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .zh_full, .trans p{
   flex:1;
@@ -129,7 +131,9 @@ strong{
   margin-bottom: 5px;
   float: none;
 }
-
+.btnAudio{
+  margin: 10px;
+}
 /* Estilos generales para botones */
 button:hover {
     transform: translateY(-2px);
