@@ -58,241 +58,239 @@ async function updateCharacters() {
     const char = text[i];
     const pinyinChar = window.pinyinPro.pinyin(char, { toneType: 'marks' });
 
-const radicalVariants = {
-  '一': ['一'],
-  '丨': ['丨'],
-  '丶': ['丶'],
-  '丿': ['丿','乀','乁'], 
-  '乙': ['乙','乚','乛'],
-  '亅': ['亅'],
-  '二': ['二'],
-  '亠': ['亠'],
-  '人': ['人','亻'],
-  '儿': ['儿'],
-  '入': ['入'],
-  '八': ['八','丷'],
-  '冂': ['冂'],
-  '冖': ['冖'],
-  '冫': ['冫'],
-  '几': ['几','𠃌'],
-  '凵': ['凵'],
-  '刀': ['刀','刂','刁'],
-  '力': ['力'],
-  '勹': ['勹'],
-  '匕': ['匕'],
-  '匚': ['匚'],
-  '匸': ['匸'],
-  '十': ['十'],
-  '卜': ['卜'],
-  '卩': ['卩'],
-  '厂': ['厂'],
-  '厶': ['厶'],
-  '又': ['又'],
-  '口': ['口','囗'],
-  '土': ['土'],
-  '士': ['士'],
-  '夂': ['夂'],
-  '夊': ['夊'],
-  '夕': ['夕'],
-  '大': ['大'],
-  '女': ['女'],
-  '子': ['子'],
-  '宀': ['宀'],
-  '寸': ['寸'],
-  '小': ['小','⺌','⺍'],
-  '尢': ['尢'],
-  '尸': ['尸'],
-  '屮': ['屮'],
-  '山': ['山'],
-  '巛': ['川','巛'],
-  '工': ['工'],
-  '己': ['己'],
-  '巾': ['巾'],
-  '干': ['干'],
-  '幺': ['幺'],
-  '广': ['广'],
-  '廴': ['廴'],
-  '廾': ['廾'],
-  '弋': ['弋'],
-  '弓': ['弓'],
-  '彐': ['彐','彑'],
-  '彡': ['彡'],
-  '彳': ['彳'],
-  '心': ['心','忄'],
-  '戈': ['戈'],
-  '戶': ['戶','户'],
-  '手': ['手','扌'],
-  '支': ['支'],
-  '攴': ['攴','夂'],
-  '文': ['文'],
-  '斗': ['斗'],
-  '斤': ['斤'],
-  '方': ['方'],
-  '无': ['无','旡',],
-  '日': ['日'],
-  '曰': ['曰'],
-  '月': ['月'],
-  '木': ['木','朩'],
-  '欠': ['欠'],
-  '止': ['止'],
-  '歹': ['歹'],
-  '殳': ['殳'],
-  '毋': ['毋'],
-  '比': ['比'],
-  '毛': ['毛'],
-  '氏': ['氏'],
-  '气': ['气'],
-  '水': ['水','氵','氺'],
-  '火': ['火','灬'],
-  '爪': ['爪','爫'],
-  '父': ['父'],
-  '爻': ['爻'],
-  '爿': ['爿'],
-  '片': ['片'],
-  '牙': ['牙'],
-  '牛': ['牛','牜','⺧'],
-  '犬': ['犬','犭'],
-  '玄': ['玄'],
-  '玉': ['玉','王'],
-  '瓜': ['瓜'],
-  '瓦': ['瓦'],
-  '甘': ['甘'],
-  '生': ['生'],
-  '用': ['用'],
-  '田': ['田'],
-  '疋': ['疋','𤴔'],
-  '疒': ['疒'],
-  '癶': ['癶'],
-  '白': ['白'],
-  '皮': ['皮'],
-  '皿': ['皿'],
-  '目': ['目'],
-  '矛': ['矛'],
-  '矢': ['矢'],
-  '石': ['石'],
-  '示': ['示','礻'],
-  '禸': ['禸'],
-  '禾': ['禾'],
-  '穴': ['穴'],
-  '立': ['立'],
-  '竹': ['竹','⺮','ケ'],
-  '米': ['米'],
-  '糸': ['糸','纟'],
-  '缶': ['缶'],
-  '网': ['网','罒','罓'],
-  '羊': ['羊','⺶','⺷'],
-  '羽': ['羽'],
-  '老': ['老','耂'],
-  '而': ['而'],
-  '耒': ['耒'],
-  '耳': ['耳'],
-  '聿': ['聿'],
-  '肉': ['肉','⺼'],
-  '臼': ['臼'],
-  '舌': ['舌'],
-  '舛': ['舛'],
-  '舟': ['舟'],
-  '艮': ['艮'],
-  '色': ['色'],
-  '艸': ['艹'],
-  '虍': ['虍'],
-  '虫': ['虫'],
-  '血': ['血'],
-  '行': ['行'],
-  '衣': ['衣','衤'],
-  '襾': ['襾','西'],
-  '见': ['见'],
-  '角': ['角'],
-  '言': ['言','訁'],
-  '谷': ['谷'],
-  '豆': ['豆'],
-  '豕': ['豕'],
-  '豸': ['豸'],
-  '貝': ['貝'],
-  '赤': ['赤'],
-  '走': ['走'],
-  '足': ['足'],
-  '身': ['身'],
-  '車': ['車'],
-  '辛': ['辛'],
-  '辰': ['辰'],
-  '辵': ['辶'],
-  '邑': ['邑','阝'],
-  '酉': ['酉'],
-  '釆': ['釆'],
-  '里': ['里'],
-  '金': ['金','钅'],
-  '長': ['長'],
-  '門': ['門'],
-  '阜': ['阜','⻏'],
-  '隶': ['隶'],
-  '隹': ['隹'],
-  '雨': ['雨'],
-  '青': ['青'],
-  '非': ['非'],
-  '面': ['面'],
-  '革': ['革'],
-  '韋': ['韋'],
-  '韭': ['韭'],
-  '音': ['音'],
-  '頁': ['頁'],
-  '風': ['風'],
-  '飛': ['飛'],
-  '食': ['食','饣'],
-  '首': ['首'],
-  '香': ['香'],
-  '馬': ['馬'],
-  '骨': ['骨'],
-  '高': ['高'],
-  '髟': ['髟'],
-  '鬥': ['鬥','门'],
-  '鬯': ['鬯'],
-  '鬲': ['鬲'],
-  '鬼': ['鬼'],
-  '魚': ['魚'],
-  '鳥': ['鳥'],
-  '鹵': ['鹵'],
-  '鹿': ['鹿'],
-  '麥': ['麥'],
-  '麻': ['麻'],
-  '黃': ['黃'],
-  '黍': ['黍'],
-  '黑': ['黑'],
-  '黹': ['黹'],
-  '黽': ['黽'],
-  '鼎': ['鼎'],
-  '鼓': ['鼓'],
-  '鼠': ['鼠'],
-  '鼻': ['鼻'],
-  '齊': ['齊'],
-  '齒': ['齒'],
-  '龍': ['龍'],
-  '龜': ['龜'],
-  '龠': ['龠']
-};
+    const radicalVariants = {
+      '一': ['一'],
+      '丨': ['丨'],
+      '丶': ['丶'],
+      '丿': ['丿','乀','乁'], 
+      '乙': ['乙','乚','乛'],
+      '亅': ['亅'],
+      '二': ['二'],
+      '亠': ['亠'],
+      '人': ['人','亻'],
+      '儿': ['儿'],
+      '入': ['入'],
+      '八': ['八','丷'],
+      '冂': ['冂'],
+      '冖': ['冖'],
+      '冫': ['冫'],
+      '几': ['几','𠃌'],
+      '凵': ['凵'],
+      '刀': ['刀','刂','刁'],
+      '力': ['力'],
+      '勹': ['勹'],
+      '匕': ['匕'],
+      '匚': ['匚'],
+      '匸': ['匸'],
+      '十': ['十'],
+      '卜': ['卜'],
+      '卩': ['卩'],
+      '厂': ['厂'],
+      '厶': ['厶'],
+      '又': ['又'],
+      '口': ['口','囗'],
+      '土': ['土'],
+      '士': ['士'],
+      '夂': ['夂'],
+      '夊': ['夊'],
+      '夕': ['夕'],
+      '大': ['大'],
+      '女': ['女'],
+      '子': ['子'],
+      '宀': ['宀'],
+      '寸': ['寸'],
+      '小': ['小','⺌','⺍'],
+      '尢': ['尢'],
+      '尸': ['尸'],
+      '屮': ['屮'],
+      '山': ['山'],
+      '巛': ['川','巛'],
+      '工': ['工'],
+      '己': ['己'],
+      '巾': ['巾'],
+      '干': ['干'],
+      '幺': ['幺'],
+      '广': ['广'],
+      '廴': ['廴'],
+      '廾': ['廾'],
+      '弋': ['弋'],
+      '弓': ['弓'],
+      '彐': ['彐','彑'],
+      '彡': ['彡'],
+      '彳': ['彳'],
+      '心': ['心','忄'],
+      '戈': ['戈'],
+      '戶': ['戶','户'],
+      '手': ['手','扌'],
+      '支': ['支'],
+      '攴': ['攴','夂'],
+      '文': ['文'],
+      '斗': ['斗'],
+      '斤': ['斤'],
+      '方': ['方'],
+      '无': ['无','旡',],
+      '日': ['日'],
+      '曰': ['曰'],
+      '月': ['月'],
+      '木': ['木','朩'],
+      '欠': ['欠'],
+      '止': ['止'],
+      '歹': ['歹'],
+      '殳': ['殳'],
+      '毋': ['毋'],
+      '比': ['比'],
+      '毛': ['毛'],
+      '氏': ['氏'],
+      '气': ['气'],
+      '水': ['水','氵','氺'],
+      '火': ['火','灬'],
+      '爪': ['爪','爫'],
+      '父': ['父'],
+      '爻': ['爻'],
+      '爿': ['爿'],
+      '片': ['片'],
+      '牙': ['牙'],
+      '牛': ['牛','牜','⺧'],
+      '犬': ['犬','犭'],
+      '玄': ['玄'],
+      '玉': ['玉','王'],
+      '瓜': ['瓜'],
+      '瓦': ['瓦'],
+      '甘': ['甘'],
+      '生': ['生'],
+      '用': ['用'],
+      '田': ['田'],
+      '疋': ['疋','𤴔'],
+      '疒': ['疒'],
+      '癶': ['癶'],
+      '白': ['白'],
+      '皮': ['皮'],
+      '皿': ['皿'],
+      '目': ['目'],
+      '矛': ['矛'],
+      '矢': ['矢'],
+      '石': ['石'],
+      '示': ['示','礻'],
+      '禸': ['禸'],
+      '禾': ['禾'],
+      '穴': ['穴'],
+      '立': ['立'],
+      '竹': ['竹','⺮','ケ'],
+      '米': ['米'],
+      '糸': ['糸','纟'],
+      '缶': ['缶'],
+      '网': ['网','罒','罓'],
+      '羊': ['羊','⺶','⺷'],
+      '羽': ['羽'],
+      '老': ['老','耂'],
+      '而': ['而'],
+      '耒': ['耒'],
+      '耳': ['耳'],
+      '聿': ['聿'],
+      '肉': ['肉','⺼'],
+      '臼': ['臼'],
+      '舌': ['舌'],
+      '舛': ['舛'],
+      '舟': ['舟'],
+      '艮': ['艮'],
+      '色': ['色'],
+      '艸': ['艹'],
+      '虍': ['虍'],
+      '虫': ['虫'],
+      '血': ['血'],
+      '行': ['行'],
+      '衣': ['衣','衤'],
+      '襾': ['襾','西'],
+      '见': ['见'],
+      '角': ['角'],
+      '言': ['言','訁'],
+      '谷': ['谷'],
+      '豆': ['豆'],
+      '豕': ['豕'],
+      '豸': ['豸'],
+      '貝': ['貝'],
+      '赤': ['赤'],
+      '走': ['走'],
+      '足': ['足'],
+      '身': ['身'],
+      '車': ['車'],
+      '辛': ['辛'],
+      '辰': ['辰'],
+      '辵': ['辶'],
+      '邑': ['邑','阝'],
+      '酉': ['酉'],
+      '釆': ['釆'],
+      '里': ['里'],
+      '金': ['金','钅'],
+      '長': ['長'],
+      '門': ['門'],
+      '阜': ['阜','⻏'],
+      '隶': ['隶'],
+      '隹': ['隹'],
+      '雨': ['雨'],
+      '青': ['青'],
+      '非': ['非'],
+      '面': ['面'],
+      '革': ['革'],
+      '韋': ['韋'],
+      '韭': ['韭'],
+      '音': ['音'],
+      '頁': ['頁'],
+      '風': ['風'],
+      '飛': ['飛'],
+      '食': ['食','饣'],
+      '首': ['首'],
+      '香': ['香'],
+      '馬': ['馬'],
+      '骨': ['骨'],
+      '高': ['高'],
+      '髟': ['髟'],
+      '鬥': ['鬥','门'],
+      '鬯': ['鬯'],
+      '鬲': ['鬲'],
+      '鬼': ['鬼'],
+      '魚': ['魚'],
+      '鳥': ['鳥'],
+      '鹵': ['鹵'],
+      '鹿': ['鹿'],
+      '麥': ['麥'],
+      '麻': ['麻'],
+      '黃': ['黃'],
+      '黍': ['黍'],
+      '黑': ['黑'],
+      '黹': ['黹'],
+      '黽': ['黽'],
+      '鼎': ['鼎'],
+      '鼓': ['鼓'],
+      '鼠': ['鼠'],
+      '鼻': ['鼻'],
+      '齊': ['齊'],
+      '齒': ['齒'],
+      '龍': ['龍'],
+      '龜': ['龜'],
+      '龠': ['龠']
+    };
 
+    async function showRadical(char) {
+      const radLib = (await import('https://esm.sh/@nahanil/bushou')).default;
+      let radical = radLib.for(char);  // Ej: 亻
 
+      if (radical === '*' || !radical) {
+        radical = char; // si no lo reconoce, usamos el mismo carácter
+      }
 
-async function showRadical(char) {
-  const radLib = (await import('https://esm.sh/@nahanil/bushou')).default;
-  let radical = radLib.for(char);  // Ej: 亻
+      // Buscar variantes conocidas
+      const variants = Object.values(radicalVariants).find(arr => arr.includes(radical)) || [radical];
 
-  if (radical === '*' || !radical) {
-    radical = char; // si no lo reconoce, usamos el mismo carácter
-  }
+      // Siempre incluir el carácter buscado dentro de la lista de variantes
+      const allVariants = Array.from(new Set([...variants, char]));
 
-  // Buscar variantes conocidas
-  const variants = Object.values(radicalVariants).find(arr => arr.includes(radical)) || [radical];
+      // Mostrar en consola
+      console.log(`Carácter: ${char}, Radical: ${radical}, Variantes: ${allVariants.join(' , ')}`);
 
-  // Siempre incluir el carácter buscado dentro de la lista de variantes
-  const allVariants = Array.from(new Set([...variants, char]));
-
-  // Mostrar en consola
-  console.log(`Carácter: ${char}, Radical: ${radical}, Variantes: ${allVariants.join(' , ')}`);
-
-  // Retornar como string
-  return allVariants.join(' , ');
-}
+      // Retornar como string
+      return allVariants.join(' , ');
+    }
 
     // Crea el div para el carácter
     const charDiv = document.createElement('div');
@@ -442,6 +440,48 @@ async function fetchTranslation(texto_full) {
     return { en: 'Error', es: 'Error', zh_tr: 'Error', zh_simp: 'Error' };
   }
 }
+let openmoji = [];
+
+// Lista de palabras de relleno comunes en inglés
+const stopWords = ["the", "a", "an", "is", "are", "on", "in", "of", "and", "to", "for", "with", "by", "at", "from"];
+
+async function loadOpenmoji() {
+  const res = await fetch("https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.json");
+  openmoji = await res.json();
+}
+
+function addEmojiSmart(phrase) {
+  if (!openmoji.length) return "❓";
+
+  // Dividir frase y eliminar palabras de relleno
+  const words = phrase
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(word => !stopWords.includes(word));
+
+  if (!words.length) return "❓";
+
+  // 1. Buscar emoji que contenga todas las palabras
+  const match = openmoji.find(e => {
+    const text = e.annotation.toLowerCase();
+    const tags = Array.isArray(e.tags) ? e.tags.map(t => t.toLowerCase()) : [];
+    return words.every(word => text.includes(word) || tags.some(t => t.includes(word)));
+  });
+
+  if (match) return match.emoji;
+
+  // 2. Si no existe, buscar emojis individuales para cada palabra
+  const result = words.map(word => {
+    const single = openmoji.find(e => {
+      const text = e.annotation.toLowerCase();
+      const tags = Array.isArray(e.tags) ? e.tags.map(t => t.toLowerCase()) : [];
+      return text.includes(word) || tags.some(t => t.includes(word));
+    });
+    return single ? single.emoji : "❓";
+  });
+
+  return result.join(" ");
+}
 
 
 async function updateTranslationAndPinyin(texto_full) {
@@ -458,6 +498,12 @@ async function updateTranslationAndPinyin(texto_full) {
     <button id="btnAudio_en_slow" title="Reproducir pronunciación en Ingles Lento" style="margin-left: 5px;">🐢 0.6x</button>`;
   const audioBt_ES = `
     <button id="btnAudio_es" title="Reproducir pronunciación en Español">🔊 1x</button>`;
+// Uso
+
+   if (!openmoji.length) await loadOpenmoji();
+  const emoji = addEmojiSmart(trans.en);
+
+
 
   translationBox.innerHTML = `
     <div class="zh">
@@ -473,6 +519,7 @@ async function updateTranslationAndPinyin(texto_full) {
     </div>
     <strong>English: </strong><div class="trans"><p> ${trans.en}</p>${audioBt_EN}</div>
     <strong>Español: </strong><div class="trans"><p> ${trans.es}</p>${audioBt_ES}</div>
+    <strong>Emoji: </strong><div class="trans"><p> ${emoji}</p></div>
   `;
 
 // Botones de audio normal
