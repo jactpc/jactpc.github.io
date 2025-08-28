@@ -82,21 +82,17 @@ button, #target {
   font-weight: normal;
   font-style: normal;
 }
-ruby rt {
-  font-size: 0.7em;
-  ruby-position: under; /* 👈 lo mueve debajo del hanzi */
-}
 
 .hz-pair {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 4px;
+  cursor: pointer;
+  margin: 0 5px;
 }
-
+.hz-pair:hover {
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+}
 .hanzi {
   font-family: 'GKai', 'ZhHanzi', sans-serif;
-  font-size: 4rem;
+  font-size: 5rem;
   line-height: 1;
 }
 
@@ -173,12 +169,25 @@ button:hover {
 }
 button {
   background: #fff;
-    color: #444;
-    cursor: pointer;
-    transition: all 300ms;
-    height: auto;
-    font-size: 40px;
-    border: 1px solid #eee;
+  color: #444;
+  cursor: pointer;
+  transition: all 300ms;
+  height: auto;
+  font-size: 40px;
+  border: 1px solid #eee;
+}
+button.btnAudio{
+  display: inline-flex;
+  align-items: center;
+  padding-left: 9px;
+  width: 115px;
+  font-size: 39px;
+  margin-left: 5px;
+  border-radius: 10px;
+}
+button.btnAudio .btnAudioTx{
+  font-size: 23px;
+  padding-left: 7px;
 }
 .features{
   width: 100px;

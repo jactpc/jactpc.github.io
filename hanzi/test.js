@@ -451,16 +451,16 @@ async function updateTranslationAndPinyin(texto_full) {
 
   // Botón de audio (usa Google Translate TTS)
   const audioBt_ZHsimp = `
-    <button id="btnAudio_zhsimp" class="btnAudio" title="Reproducir pronunciación Chino Tradicional">🔊 1x</button>
-    <button id="btnAudio_zhsimp_slow" class="btnAudio" title="Reproducir pronunciación Chino Tradicional lento">🐢 0.6x</button>`;
+    <button id="btnAudio_zhsimp" class="btnAudio" title="Reproducir pronunciación Chino Tradicional">🔊<div class ="btnAudioTx"> 1x</div></button>
+    <button id="btnAudio_zhsimp_slow" class="btnAudio" title="Reproducir pronunciación Chino Tradicional lento">🐢<div class ="btnAudioTx"> 0.6x</div></button>`;
   const audioBt_ZHCN = `
-    <button id="btnAudio_zhcn" class="btnAudio" title="Reproducir pronunciación Chino Simplificado">🔊 1x</button>
-    <button id="btnAudio_zhcn_slow" class="btnAudio" title="Reproducir pronunciación Chino Simplificado lento">🐢 0.6x</button>`;
+    <button id="btnAudio_zhcn" class="btnAudio" title="Reproducir pronunciación Chino Simplificado">🔊<div class ="btnAudioTx"> 1x</div></button>
+    <button id="btnAudio_zhcn_slow" class="btnAudio" title="Reproducir pronunciación Chino Simplificado lento">🐢<div class ="btnAudioTx"> 0.6x</div></button>`;
   const audioBt_EN = `
-    <button id="btnAudio_en" class="btnAudio" title="Reproducir pronunciación en Ingles">🔊 1x</button>
-    <button id="btnAudio_en_slow" class="btnAudio" title="Reproducir pronunciación en Ingles Lento"">🐢 0.6x</button>`;
+    <button id="btnAudio_en" class="btnAudio" title="Reproducir pronunciación en Ingles">🔊<div class ="btnAudioTx"> 1x</div></button>
+    <button id="btnAudio_en_slow" class="btnAudio" title="Reproducir pronunciación en Ingles Lento"">🐢<div class ="btnAudioTx"> 0.6x</div></button>`;
   const audioBt_ES = `
-    <button id="btnAudio_es" class="btnAudio" title="Reproducir pronunciación en Español">🔊 1x</button>`;
+    <button id="btnAudio_es" class="btnAudio" title="Reproducir pronunciación en Español">🔊<div class ="btnAudioTx"> 1x</div></button>`;
   
   const toneColors = {
     1: "blue",    // Primer tono (¯)
@@ -490,7 +490,7 @@ async function updateTranslationAndPinyin(texto_full) {
       // devolvemos cada bloque de HTML
       return `
         <div class="hz-pair" id="${id}-audio" style="display:inline-block;text-align:center;margin:0 5px;">
-          <span class="hanzi" style="font-size:3em;color:${color}">${char}</span>
+          <span class="hanzi" style="color:${color}">${char}</span>
           <span class="pinyin" style="display:block;color:${color};font-size:1.2em;">${py}</span>
         </div>
       `;
