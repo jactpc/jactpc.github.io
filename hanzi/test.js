@@ -450,38 +450,81 @@ async function updateTranslationAndPinyin(texto_full) {
   const pinyin = window.pinyinPro.pinyin(texto_full, { toneType: 'marks' });
 
   // Botón de audio (usa Google Translate TTS)
+  const audioBt_ZHsimp = `
+    <button id="btnAudio_zhsimp" class="btnAudio" title="Reproducir pronunciación Chino Tradicional">🔊 1x</button>
+    <button id="btnAudio_zhsimp_slow" class="btnAudio" title="Reproducir pronunciación Chino Tradicional lento">🐢 0.6x</button>`;
   const audioBt_ZHCN = `
-    <button id="btnAudio_zhcn" class="btnAudio" title="Reproducir pronunciación Chino">🔊 1x</button>
-    <button id="btnAudio_zhcn_slow" class="btnAudio" title="Reproducir pronunciación Chino lento">🐢 0.6x</button>`;
+    <button id="btnAudio_zhcn" class="btnAudio" title="Reproducir pronunciación Chino Simplificado">🔊 1x</button>
+    <button id="btnAudio_zhcn_slow" class="btnAudio" title="Reproducir pronunciación Chino Simplificado lento">🐢 0.6x</button>`;
   const audioBt_EN = `
     <button id="btnAudio_en" class="btnAudio" title="Reproducir pronunciación en Ingles">🔊 1x</button>
     <button id="btnAudio_en_slow" class="btnAudio" title="Reproducir pronunciación en Ingles Lento"">🐢 0.6x</button>`;
   const audioBt_ES = `
     <button id="btnAudio_es" class="btnAudio" title="Reproducir pronunciación en Español">🔊 1x</button>`;
+  
+  const toneColors = {
+    1: "blue",    // Primer tono (¯)
+    2: "green",   // Segundo tono (´)
+    3: "orange",  // Tercer tono (ˇ)
+    4: "red",     // Cuarto tono (`)
+    0: "gray"     // Neutro (sin marca)
+  };
+
+  function getTone(pinyin) {
+    if (/[āēīōūǖ]/.test(pinyin)) return 1;
+    if (/[áéíóúǘ]/.test(pinyin)) return 2;
+    if (/[ǎěǐǒǔǚ]/.test(pinyin)) return 3;
+    if (/[àèìòùǜ]/.test(pinyin)) return 4;
+    return 0;
+  }
+
+  function hanziWithPinyinColored(texto) {
+    const pinyins = window.pinyinPro.pinyin(texto, { toneType: "marks", type: "array" });
+
+    return texto.split("").map((char, i) => {
+      const py = pinyins[i] || "";
+      const tone = getTone(py);
+      const color = toneColors[tone];
+      const id = `hz-pair-${i}`; // usar índice para asegurar ID único
+
+      // devolvemos cada bloque de HTML
+      return `
+        <div class="hz-pair" id="${id}-audio" style="display:inline-block;text-align:center;margin:0 5px;">
+          <span class="hanzi" style="font-size:3em;color:${color}">${char}</span>
+          <span class="pinyin" style="display:block;color:${color};font-size:1.2em;">${py}</span>
+        </div>
+      `;
+      }).join("");
+  }
 
   translationBox.innerHTML = `
     <div class="zh">
       <div class="zh_full">
-        <strong>简体中文: </strong>
-        <p> ${trans.zh_simp} </p>
-        <strong>繁体中文:</strong>
-        <p> ${trans.zh_tr}</p>
-        <strong>Pīnyīn:</strong>
-        <p> ${pinyin}</p>
-      </div>
-      ${audioBt_ZHCN}
-    </div>
-    <strong>English: </strong><div class="trans"><p> ${trans.en}</p>${audioBt_EN}</div>
-    <strong>Español: </strong><div class="trans"><p> ${trans.es}</p>${audioBt_ES}</div>
-  `;
+        <strong>简体中文: </strong>${audioBt_ZHsimp}
+        <p class="zhtxt">${hanziWithPinyinColored(trans.zh_simp)}</p>
 
+        <strong>繁体中文:</strong>${audioBt_ZHCN}
+        <p class="zhtxt"> ${hanziWithPinyinColored(trans.zh_tr)}</p>    
+      </div>
+    </div>
+    <strong>English: ${audioBt_EN}</strong><div class="trans"><p> ${trans.en}</p></div>
+    <strong>Español: ${audioBt_ES}</strong><div class="trans"><p> ${trans.es}</p></div>
+  `;
+  const pinyinsZhSimp = window.pinyinPro.pinyin(trans.zh_simp, { toneType: "marks", type: "array" });
+
+  trans.zh_simp.split("").forEach((char, i) => {
+    const id = `hz-pair-${i}-audio`;
+    attachAudioButton(id, char, "zh", 1.0);
+  });
   // Botones de audio normal
-  attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh", 1.0);
+  attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh_HANT", 1.0);
+  attachAudioButton("btnAudio_zhsimp", trans.zh_simp, "zh", 1.0);
   attachAudioButton("btnAudio_en", trans.en, "en", 1.0);
   attachAudioButton("btnAudio_es", trans.es, "es", 1.0);
 
   // Botones de audio lento
-  attachAudioButton("btnAudio_zhcn_slow", trans.zh_simp, "zh", 0.6);
+  attachAudioButton("btnAudio_zhsimp_slow", trans.zh_simp, "zh", 0.6);
+  attachAudioButton("btnAudio_zhcn_slow", trans.zh_simp, "zh_HANT", 0.6);
   attachAudioButton("btnAudio_en_slow", trans.en, "en", 0.6);
 }
 
