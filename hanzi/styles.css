@@ -83,12 +83,14 @@ button, #target {
   font-style: normal;
 }
 
-.hz-pair {
-  cursor: pointer;
-  margin: 0 5px;
+.hz-pair, .hz-pairx{
+  display:inline-block;
+  text-align:center;
+  margin:0 5px;
 }
 .hz-pair:hover {
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
 }
 .hanzi {
   font-family: 'GKai', 'ZhHanzi', sans-serif;
@@ -97,10 +99,13 @@ button, #target {
 }
 
 .pinyin {
-  font-size: 1.2rem;
   margin-top: 4px;
+  display:block;
+  font-size:1.2em;
 }
-
+.zhtxt{
+  margin: 10px 0;
+}
 .zh_full, .trans p{
   flex:1;
 }

@@ -467,7 +467,8 @@ async function updateTranslationAndPinyin(texto_full) {
     2: "green",   // Segundo tono (´)
     3: "orange",  // Tercer tono (ˇ)
     4: "red",     // Cuarto tono (`)
-    0: "gray"     // Neutro (sin marca)
+    0: "gray",     // Neutro (sin marca)
+    5: "black"
   };
 
   function getTone(pinyin) {
@@ -478,44 +479,61 @@ async function updateTranslationAndPinyin(texto_full) {
     return 0;
   }
 
-  function hanziWithPinyinColored(texto) {
-    const pinyins = window.pinyinPro.pinyin(texto, { toneType: "marks", type: "array" });
+function hanziWithPinyinColored(texto, prefix) {
+  const pinyins = window.pinyinPro.pinyin(texto, { toneType: "marks", type: "array" });
 
-    return texto.split("").map((char, i) => {
-      const py = pinyins[i] || "";
-      const tone = getTone(py);
-      const color = toneColors[tone];
-      const id = `hz-pair-${i}`; // usar índice para asegurar ID único
-
-      // devolvemos cada bloque de HTML
+  return texto.split("").map((char, i) => {
+    // Verificamos si es un caracter chino
+    if (!/[\u4E00-\u9FFF]/.test(char)) {
+      // si no es chino, lo dejamos tal cual (sin pinyin)
       return `
-        <div class="hz-pair" id="${id}-audio" style="display:inline-block;text-align:center;margin:0 5px;">
-          <span class="hanzi" style="color:${color}">${char}</span>
-          <span class="pinyin" style="display:block;color:${color};font-size:1.2em;">${py}</span>
-        </div>
-      `;
-      }).join("");
-  }
+        <div class="hz-pairx">
+          <span class="hanzi" style="color:${toneColors['5']}">${char}</span>
+          <span class="pinyin" style="color:${toneColors['5']}">${char}</span>
+        </div>`;
+    }
+
+    const py = pinyins[i] || "";
+    const tone = getTone(py);
+    const color = toneColors[tone];
+    const id = `${prefix}-${i}`;
+
+    return `
+      <div class="hz-pair" id="${id}-audio">
+        <span class="hanzi" style="color:${color}">${char}</span>
+        <span class="pinyin" style="color:${color};">${py}</span>
+      </div>
+    `;
+  }).join("");
+}
 
   translationBox.innerHTML = `
     <div class="zh">
       <div class="zh_full">
         <strong>简体中文: </strong>${audioBt_ZHsimp}
-        <p class="zhtxt">${hanziWithPinyinColored(trans.zh_simp)}</p>
+        <div class="zhtxt">${hanziWithPinyinColored(trans.zh_simp, "simp")}</div>
 
         <strong>繁体中文:</strong>${audioBt_ZHCN}
-        <p class="zhtxt"> ${hanziWithPinyinColored(trans.zh_tr)}</p>    
+        <div class="zhtxt">${hanziWithPinyinColored(trans.zh_tr, "trad")}</div>    
       </div>
     </div>
-    <strong>English: ${audioBt_EN}</strong><div class="trans"><p> ${trans.en}</p></div>
-    <strong>Español: ${audioBt_ES}</strong><div class="trans"><p> ${trans.es}</p></div>
+    <strong>English: ${audioBt_EN}</strong><div class="trans"><p>${trans.en}</p></div>
+    <strong>Español: ${audioBt_ES}</strong><div class="trans"><p>${trans.es}</p></div>
   `;
-  const pinyinsZhSimp = window.pinyinPro.pinyin(trans.zh_simp, { toneType: "marks", type: "array" });
 
-  trans.zh_simp.split("").forEach((char, i) => {
-    const id = `hz-pair-${i}-audio`;
-    attachAudioButton(id, char, "zh", 1.0);
-  });
+
+// Para simplificado
+trans.zh_simp.split("").forEach((char, i) => {
+  const id = `simp-${i}-audio`;
+  attachAudioButton(id, char, "zh", 1.0);
+});
+
+// Para tradicional
+trans.zh_tr.split("").forEach((char, i) => {
+  const id = `trad-${i}-audio`;
+  attachAudioButton(id, char, "zh_HANT", 1.0);
+});
+
   // Botones de audio normal
   attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh_HANT", 1.0);
   attachAudioButton("btnAudio_zhsimp", trans.zh_simp, "zh", 1.0);
