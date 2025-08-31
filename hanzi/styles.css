@@ -43,26 +43,25 @@ button, #target {
 }
 .title_pinyin{
   font-size: 50px;
-  padding-top: 20px;
   color: #888;
 }
 .radicalDiv{
   font-size: 30px;
 }
-.con-hanzi{
+.con_hanzi{
   display: inline-block;
   text-align: center;
   width: 810px;
-  margin-bottom: 40px;
-  padding: 30px 0;
+  margin-top: 40px;
   border-bottom: solid 1px silver;
 }
 .hanzi-char{
   box-shadow: 0 1px 5px rgb(0 0 0 / 67%);
   border-radius: 10px;
+  margin-top: 20px;
 }
 .features_box{
-  padding-top: 20px;
+  padding: 30px 0
 }
 #translations{
   padding: 40px;
@@ -181,16 +180,21 @@ button {
   font-size: 40px;
   border: 1px solid #eee;
 }
+button.btnFeatures{
+  width: auto;
+}
 button.btnAudio{
+  width: 115px;
+}
+button.btnAudio, button.btnFeatures {
   display: inline-flex;
   align-items: center;
   padding-left: 9px;
-  width: 115px;
   font-size: 39px;
   margin-left: 5px;
   border-radius: 10px;
 }
-button.btnAudio .btnAudioTx{
+button.btnAudio div, button.btnFeatures div{
   font-size: 23px;
   padding-left: 7px;
 }
