@@ -184,7 +184,7 @@ button.btnFeatures{
   width: auto;
 }
 button.btnAudio{
-  width: 115px;
+  min-width: 115px;
 }
 button.btnAudio, button.btnFeatures {
   display: inline-flex;

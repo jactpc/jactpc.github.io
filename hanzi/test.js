@@ -10,12 +10,19 @@ function attachAudioButton(buttonId, text, lang, speed = 1.0) {
   if (!btn) return;
 
   btn.onclick = async () => {
+    // Guardamos el contenido original del botón (para restaurar luego)
+    const originalHTML = btn.innerHTML;
+
     try {
       btn.disabled = true; // Bloquear botón
 
       const url = `https://lingva.ml/api/v1/audio/${lang}/${encodeURIComponent(text)}`;
       const res = await fetch(url);
+
+      if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+
       const data = await res.json();
+      if (!data.audio) throw new Error("No se recibió audio válido");
 
       // Convierte el array de bytes a Blob
       const audioBytes = new Uint8Array(data.audio);
@@ -24,17 +31,39 @@ function attachAudioButton(buttonId, text, lang, speed = 1.0) {
       const audio = new Audio(URL.createObjectURL(blob));
       audio.playbackRate = speed;
 
+      // 🎵 Barra de progreso dentro del botón
+      audio.addEventListener("timeupdate", () => {
+        if (audio.duration > 0) {
+          const progress = (audio.currentTime / audio.duration) * 100;
+          btn.style.background = `linear-gradient(to right, #4caf50 ${progress}%, #333 ${progress}%)`;
+          btn.style.color = "#fff";
+          btn.style.border = "none";
+        }
+      });
+
+      // Cuando termina el audio → restaurar botón
       audio.addEventListener("ended", () => {
-        btn.disabled = false; // Reactivar botón
+        btn.style.background = "";
+        btn.style.color = "";
+        btn.innerHTML = originalHTML; 
+        btn.disabled = false;
       });
 
       await audio.play();
     } catch (err) {
       console.error("Error reproduciendo audio:", err);
-      btn.disabled = false; // Reactivar en caso de error
+
+      // Restaurar botón inmediatamente en caso de error
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+      btn.style.background = "";
+
+      // Opcional: mensaje visual
+      alert("⚠️ No tan rápido campeón. Intenta nuevamente, evita el SPAM.");
     }
   };
 }
+
 
 // Traducción
 async function fetchTranslation(texto_full, targets = ["en", "es", "zh_HANT", "zh"]) {
@@ -341,29 +370,31 @@ async function updateCharacters() {
     const titleDiv = document.createElement('div');
     titleDiv.className="title_pinyin";
     titleDiv.textContent = `${char} ${pinyinChar}`;// (${transES.es})`;
-    container.appendChild(titleDiv);
+    charContainer.appendChild(titleDiv);
 
     const radicalDiv = document.createElement('div');
     radicalDiv.className="radicalDiv";
     // Esperar el resultado de getRadicalVariants
     radicalDiv.textContent = `Radical: ${await getRadicalVariants(char)}`;
-    container.appendChild(radicalDiv);
+    charContainer.appendChild(radicalDiv);
 
     const btnAudio = createButton(`pinyin_audio_${i}`,"🔊", "Pronunciación normal","btnAudio", "1x");
     btnAudio.id = `pinyin_audio_${i}`;
-    container.appendChild(btnAudio);
+    charContainer.appendChild(btnAudio);
+    container.appendChild(charContainer);
     attachAudioButton(btnAudio.id, char, "zh", 1.0);
 
     const btnAudioSlow = createButton(`pinyin_audio_slow_${i}`,"🐢", "Pronunciación lenta", "btnAudio", "0.6x");
     btnAudioSlow.id = `pinyin_audio_slow_${i}`;
-    container.appendChild(btnAudioSlow);
+    charContainer.appendChild(btnAudioSlow);
+    container.appendChild(charContainer);
     attachAudioButton(btnAudioSlow.id, char, "zh", 0.6);
 
     // Crea el div para el carácter
     const charDiv = document.createElement('div');
     charDiv.className="hanzi-char";
     charDiv.id = `char-${i}`;
-    container.appendChild(charDiv);
+    charContainer.appendChild(charDiv);
 
     // Crear contenedor para botones
     const controlsDiv = document.createElement('div');
@@ -420,22 +451,6 @@ async function updateTranslationAndPinyin(texto_full) {
   const trans = await fetchTranslation(texto_full);
   const translationBox = document.getElementById('translations');
   const pinyin = window.pinyinPro.pinyin(texto_full, { toneType: 'marks' });
-
-  // Botón de audio (usa Google Translate TTS)
-  const audioBt_ZHsimp =createButton("btnAudio_zhsimp", "🔊", "Reproducir pronunciación Chino Tradicional", "btnAudio", "1x");
-  const audioBt_ZHsimpS= createButton("btnAudio_zhsimp_slow", "🐢", "Reproducir pronunciación Chino Tradicional lento", "btnAudio", "0.6x");
-
-  //const audioBt_ZHsimp = `
-  //  <button id="btnAudio_zhsimp" class="btnAudio" title="Reproducir pronunciación Chino Tradicional">🔊<div class ="btnAudioTx"> 1x</div></button>
-  //  <button id="btnAudio_zhsimp_slow" class="btnAudio" title="Reproducir pronunciación Chino Tradicional lento">🐢<div class ="btnAudioTx"> 0.6x</div></button>`;
-  const audioBt_ZHCN = `
-    <button id="btnAudio_zhcn" class="btnAudio" title="Reproducir pronunciación Chino Simplificado">🔊<div class ="btnAudioTx"> 1x</div></button>
-    <button id="btnAudio_zhcn_slow" class="btnAudio" title="Reproducir pronunciación Chino Simplificado lento">🐢<div class ="btnAudioTx"> 0.6x</div></button>`;
-  const audioBt_EN = `
-    <button id="btnAudio_en" class="btnAudio" title="Reproducir pronunciación en Ingles">🔊<div class ="btnAudioTx"> 1x</div></button>
-    <button id="btnAudio_en_slow" class="btnAudio" title="Reproducir pronunciación en Ingles Lento"">🐢<div class ="btnAudioTx"> 0.6x</div></button>`;
-  const audioBt_ES = `
-    <button id="btnAudio_es" class="btnAudio" title="Reproducir pronunciación en Español">🔊<div class ="btnAudioTx"> 1x</div></button>`;
   
   const toneColors = {
     1: "blue",    // Primer tono (¯)
@@ -485,15 +500,25 @@ async function updateTranslationAndPinyin(texto_full) {
   translationBox.innerHTML = `
     <div class="zh">
       <div class="zh_full">
-        <strong>简体中文: </strong>${audioBt_ZHsimp}
+        <strong>简体中文: </strong>
+          ${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación Chino Tradicional", "btnAudio", "1x").outerHTML}
+          ${createButton("btnAudio_zhcn_slow", "🐢", "Reproducir pronunciación Chino Tradicional lento", "btnAudio", "0.6x").outerHTML}
         <div class="zhtxt">${hanziWithPinyinColored(trans.zh_simp, "simp")}</div>
 
-        <strong>繁体中文:</strong>${audioBt_ZHCN}
+        <strong>繁体中文:</strong>
+          ${createButton("btnAudio_zhsimp", "🔊", "Reproducir pronunciación Chino Simplificado", "btnAudio", "1x").outerHTML}
+          ${createButton("btnAudio_zhsimp_slow", "🐢", "Reproducir pronunciación Chino Simplificado lento", "btnAudio", "0.6x").outerHTML}
         <div class="zhtxt">${hanziWithPinyinColored(trans.zh_tr, "trad")}</div>    
       </div>
     </div>
-    <strong>English: ${audioBt_EN}</strong><div class="trans"><p>${trans.en}</p></div>
-    <strong>Español: ${audioBt_ES}</strong><div class="trans"><p>${trans.es}</p></div>
+    <strong>English: 
+        ${createButton("btnAudio_en", "🔊", "Reproducir pronunciación en English", "btnAudio", "1x").outerHTML}
+        ${createButton("btnAudio_en_slow", "🐢", "Reproducir pronunciación en English lento", "btnAudio", "0.6x").outerHTML}
+    </strong><div class="trans"><p>${trans.en}</p></div>
+    <strong>Español: 
+        ${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en Spanish", "btnAudio", "1x").outerHTML}
+        ${createButton("btnAudio_es_slow", "🐢", "Reproducir pronunciación en Spanish lento", "btnAudio", "0.6x").outerHTML}
+    </strong><div class="trans"><p>${trans.es}</p></div>
   `;
 
   // Para simplificado
@@ -518,6 +543,7 @@ async function updateTranslationAndPinyin(texto_full) {
   attachAudioButton("btnAudio_zhsimp_slow", trans.zh_simp, "zh", 0.6);
   attachAudioButton("btnAudio_zhcn_slow", trans.zh_simp, "zh_HANT", 0.6);
   attachAudioButton("btnAudio_en_slow", trans.en, "en", 0.6);
+  attachAudioButton("btnAudio_es_slow", trans.es, "es", 0.6);
 }
 
 window.onload = function () {
