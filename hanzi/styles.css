@@ -42,11 +42,11 @@ button, #target {
   border-radius: 10px;
 }
 .title_pinyin{
-  font-size: 50px;
+  font-size: 6em;
   color: #888;
 }
 .radicalDiv{
-  font-size: 30px;
+  font-size: 3em;
 }
 .con_hanzi{
   display: inline-block;
@@ -93,14 +93,14 @@ button, #target {
 }
 .hanzi {
   font-family: 'GKai', 'ZhHanzi', sans-serif;
-  font-size: 5rem;
+  font-size: 10rem;
   line-height: 1;
 }
 
 .pinyin {
   margin-top: 4px;
   display:block;
-  font-size:1.2em;
+  font-size:4.2em;
 }
 .zhtxt{
   margin: 10px 0;
@@ -115,7 +115,7 @@ button, #target {
 }
 
 strong{
-  font-size: 20px;
+  font-size: 2.5em;
 }
 .form-label {
   margin: 0 10px 0 0;
@@ -136,7 +136,7 @@ strong{
 
 .char-input {
   flex: 1 1 400px;
-  font-size: 40px;
+  font-size: 6em;
   padding: 20px 90px 20px 40px;
   border-radius: 10px;
   box-sizing: border-box;
