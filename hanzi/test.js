@@ -307,6 +307,29 @@ const radicalVariants = {
   '龠': ['龠']
 };
 
+function renderFanningStrokes(target, strokes) {
+  var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.style.width = '75px';
+  svg.style.height = '75px';
+  svg.style.border = '1px solid #EEE'
+  svg.style.marginRight = '3px'
+  target.appendChild(svg);
+  var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+  // set the transform property on the g element so the character renders at 75x75
+  var transformData = HanziWriter.getScalingTransform(75, 75);
+  group.setAttributeNS(null, 'transform', transformData.transform);
+  svg.appendChild(group);
+
+  strokes.forEach(function(strokePath) {
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttributeNS(null, 'd', strokePath);
+    // style the character paths
+    path.style.fill = '#168F16';
+    group.appendChild(path);
+  });
+}
+
 // 📌 Función auxiliar: obtener radical + variantes
 async function getRadicalVariants(char) {
   const radLib = (await import('https://esm.sh/@nahanil/bushou')).default;
@@ -339,8 +362,6 @@ function createButton(id, label, title, className, divText, onClicki) {
   return btn;
 }
 
-
-
 async function updateCharacters() {
   const container = document.getElementById('target');
   const submitBtn = document.querySelector('#Update');
@@ -354,8 +375,6 @@ async function updateCharacters() {
   // Bloquear botón y mostrar mensaje de carga
   if (submitBtn) submitBtn.disabled = true;
   translationBox.innerHTML = `<p style="color: gray;">⏳ Obteniendo datos...</p>`;
-
-  writers = [];
 
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
@@ -390,11 +409,22 @@ async function updateCharacters() {
     container.appendChild(charContainer);
     attachAudioButton(btnAudioSlow.id, char, "zh", 0.6);
 
+    // Div para mostrar RAW
+    const raw = document.createElement('div');
+    raw.className="hanzi_raw";
+    raw.id = `raw_${i}`;
+    charContainer.appendChild(raw);
+
     // Crea el div para el carácter
     const charDiv = document.createElement('div');
     charDiv.className="hanzi-char";
     charDiv.id = `char-${i}`;
     charContainer.appendChild(charDiv);
+
+    // Div para mostrar la puntuación
+    const punctuationDiv = document.createElement('div');
+    punctuationDiv.className = "punctuation";
+    charContainer.appendChild(punctuationDiv);
 
     // Crear contenedor para botones
     const controlsDiv = document.createElement('div');
@@ -437,8 +467,31 @@ async function updateCharacters() {
     });
     writers.push(writer);
 
-    // === OPCIÓN POR DEFECTO: quiz ===
-    writer.quiz({ showOutline: true });
+    let totalStrokes = "vacio";
+    HanziWriter.loadCharacterData(char).then(function(charData) {
+      var target = document.getElementById(raw.id);
+    totalStrokes = charData.strokes.length;
+      for (var i = 0; i < charData.strokes.length; i++) {
+        var strokesPortion = charData.strokes.slice(0, i + 1);
+        renderFanningStrokes(target, strokesPortion);
+      }
+    });
+
+    // === Quiz con seguimiento por trazo y resumen final ===
+    writer.quiz({
+      showOutline: true,
+      onMistake: function(strokeData) {
+        punctuationDiv.textContent = `Trazos ${strokeData.quizStartStrokeNum} restantes: ${strokeData.strokesRemaining}, Errores totales: ${strokeData.totalMistakes}`;
+      },
+      onCorrectStroke: function(strokeData) {
+        punctuationDiv.textContent = `Trazos restantes: ${strokeData.strokesRemaining}, Errores totales: ${strokeData.totalMistakes}`;
+      },
+      onComplete: function(summaryData) {
+        const mistakes = summaryData.totalMistakes || 0;
+        const score = totalStrokes > 0 ? Math.round(((totalStrokes - mistakes) / totalStrokes) * 100) : 0;
+        punctuationDiv.textContent = `Has completado el carácter.\n Trazos: ${totalStrokes}\n Errores: ${mistakes}\n Calificación: ${score}%`;
+      }
+    });
   }
   // Actualizar traducción y pinyin global para todo el texto
   await updateTranslationAndPinyin(texto_full);

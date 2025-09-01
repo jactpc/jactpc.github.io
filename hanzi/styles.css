@@ -40,6 +40,7 @@ button, #target {
   width: 900px;
   padding: 0 50px;
   border-radius: 10px;
+  margin-bottom: 30px;
 }
 .title_pinyin{
   font-size: 6em;
@@ -59,6 +60,9 @@ button, #target {
   box-shadow: 0 1px 5px rgb(0 0 0 / 67%);
   border-radius: 10px;
   margin-top: 20px;
+}
+.hanzi_raw{
+  margin-top: 30px;
 }
 .features_box{
   padding: 30px 0
@@ -111,7 +115,7 @@ button, #target {
 /* También haz que el formulario y los botones tengan anchura fluida */
 .char-form {
     margin: auto;
-    width: 830px;
+    width: 900px;
 }
 
 strong{
@@ -120,6 +124,7 @@ strong{
 .form-label {
   margin: 0 10px 0 0;
   padding: 5px;
+  font-size: 25px;
 }
 
 .form-row {
