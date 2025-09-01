@@ -498,11 +498,13 @@ async function updateCharacters() {
     writer.quiz({
       showOutline: true,
       onMistake: function(strokeData) {
+        writer.hideOutline();
         charDiv.style.boxShadow = ``,
         punctuationDiv.style.boxShadow = ``,
         punctuationDiv.textContent = `Trazos ${strokeData.quizStartStrokeNum} restantes: ${strokeData.strokesRemaining}, Errores totales: ${strokeData.totalMistakes}`;
       },
       onCorrectStroke: function(strokeData) {
+        writer.hideOutline();
         charDiv.style.boxShadow = ``,
         punctuationDiv.style.boxShadow = ``,
         punctuationDiv.textContent = `Trazos restantes: ${strokeData.strokesRemaining}, Errores totales: ${strokeData.totalMistakes}`;
