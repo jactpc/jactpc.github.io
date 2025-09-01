@@ -467,7 +467,7 @@ async function updateCharacters() {
     });
     writers.push(writer);
 
-    let totalStrokes = "vacio";
+    let totalStrokes = 0;
     HanziWriter.loadCharacterData(char).then(function(charData) {
       var target = document.getElementById(raw.id);
     totalStrokes = charData.strokes.length;
@@ -477,20 +477,49 @@ async function updateCharacters() {
       }
     });
 
+    // === Función para calcular el color ===
+    function getScoreColor(score) {
+      if (score <= 50) {
+        // Rojo → Amarillo
+        const ratio = score / 50; // 0 a 1
+        const r = 255;
+        const g = Math.round(0 + (255 * ratio)); // 0 → 255
+        return `rgb(${r},${g},0)`;
+      } else {
+        // Amarillo → Verde
+        const ratio = (score - 50) / 50; // 0 a 1
+        const r = Math.round(255 - (255 * ratio)); // 255 → 0
+        const g = 255;
+        return `rgb(${r} ${g} 0 /100%)`;
+      }
+    }
+
     // === Quiz con seguimiento por trazo y resumen final ===
     writer.quiz({
       showOutline: true,
       onMistake: function(strokeData) {
+        charDiv.style.boxShadow = ``,
+        punctuationDiv.style.boxShadow = ``,
         punctuationDiv.textContent = `Trazos ${strokeData.quizStartStrokeNum} restantes: ${strokeData.strokesRemaining}, Errores totales: ${strokeData.totalMistakes}`;
       },
       onCorrectStroke: function(strokeData) {
+        charDiv.style.boxShadow = ``,
+        punctuationDiv.style.boxShadow = ``,
         punctuationDiv.textContent = `Trazos restantes: ${strokeData.strokesRemaining}, Errores totales: ${strokeData.totalMistakes}`;
       },
       onComplete: function(summaryData) {
         const mistakes = summaryData.totalMistakes || 0;
         const score = totalStrokes > 0 ? Math.round(((totalStrokes - mistakes) / totalStrokes) * 100) : 0;
+
         punctuationDiv.textContent = `Has completado el carácter.\n Trazos: ${totalStrokes}\n Errores: ${mistakes}\n Calificación: ${score}%`;
+
+        const bgColor = getScoreColor(score);
+
+        // Aplicar colores dinámicamente
+        charDiv.style.boxShadow = `inset 0px 0px 22px 9px ${bgColor}`;
+        punctuationDiv.style.boxShadow = `1px 0px 0px 4px ${bgColor}`;
       }
+
     });
   }
   // Actualizar traducción y pinyin global para todo el texto
