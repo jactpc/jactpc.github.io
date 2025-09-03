@@ -396,13 +396,13 @@ async function updateCharacters() {
     radicalDiv.textContent = `Radical: ${await getRadicalVariants(char)}`;
     charContainer.appendChild(radicalDiv);
 
-    const btnAudio = createButton(`pinyin_audio_${i}`,"🔊", "Pronunciación normal","btnAudio", "1x");
+    const btnAudio = createButton(`pinyin_audio_${i}`,"🔊", "Pronunciación normal","btnAudio", `${char} 1x`);
     btnAudio.id = `pinyin_audio_${i}`;
     charContainer.appendChild(btnAudio);
     container.appendChild(charContainer);
     attachAudioButton(btnAudio.id, char, "zh", 1.0);
 
-    const btnAudioSlow = createButton(`pinyin_audio_slow_${i}`,"🐢", "Pronunciación lenta", "btnAudio", "0.6x");
+    const btnAudioSlow = createButton(`pinyin_audio_slow_${i}`,"🐢", "Pronunciación lenta", "btnAudio", `${char} 0.6x`);
     btnAudioSlow.id = `pinyin_audio_slow_${i}`;
     charContainer.appendChild(btnAudioSlow);
     container.appendChild(charContainer);
