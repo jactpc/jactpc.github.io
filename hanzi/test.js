@@ -554,15 +554,19 @@ async function updateTranslationAndPinyin(texto_full) {
   }
 
   function hanziWithPinyinColored(texto, prefix) {
-  const lines = texto.split("\n"); // Separamos por salto de línea
-  let html = "";
+    const lines = texto.split("\n"); // Separamos por salto de línea
+    let html = "";
+    const pinyins = window.pinyinPro.pinyin(texto, { toneType: "marks", type: "array" });
 
-  lines.forEach((line, lineIndex) => {
-    const pinyins = window.pinyinPro.pinyin(line, { toneType: "marks", type: "array" });
-
-    // Procesamos cada caracter de la línea
-    const lineHtml = line.split("").map((char, i) => {
+    return texto.split("").map((char, i) => {
+      // Verificamos si es un caracter chino
+      if (char === "\n") {
+        // 🔹 ignoramos saltos de línea completamente
+        return `
+          <div></div>`;
+      }
       if (!/[\u4E00-\u9FFF]/.test(char)) {
+        // si no es chino, lo dejamos tal cual (sin pinyin)
         return `
           <div class="hz-pairx">
             <span class="hanzi" style="color:${toneColors['5']}">${char}</span>
@@ -573,7 +577,7 @@ async function updateTranslationAndPinyin(texto_full) {
       const py = pinyins[i] || "";
       const tone = getTone(py);
       const color = toneColors[tone];
-      const id = `${prefix}-${lineIndex}-${i}`;
+      const id = `${prefix}-${i}`;
 
       return `
         <div class="hz-pair" id="${id}-audio">
@@ -582,14 +586,9 @@ async function updateTranslationAndPinyin(texto_full) {
         </div>
       `;
     }).join("");
-
-    // Envolvemos cada línea en un DIV independiente
+        // Envolvemos cada línea en un DIV independiente
     html += `<div class="hz-line">${lineHtml}</div>`;
-  });
-
-  return html;
-}
-
+  }
 
   translationBox.innerHTML = `
     <div class="zh">
