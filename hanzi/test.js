@@ -37,7 +37,6 @@ function attachAudioButton(buttonId, text, lang, speed = 1.0) {
           const progress = (audio.currentTime / audio.duration) * 100;
           btn.style.background = `linear-gradient(to right, #4caf50 ${progress}%, #333 ${progress}%)`;
           btn.style.color = "#fff";
-          btn.style.border = "none";
         }
       });
 
@@ -59,7 +58,7 @@ function attachAudioButton(buttonId, text, lang, speed = 1.0) {
       btn.style.background = "";
 
       // Opcional: mensaje visual
-      alert("⚠️ No tan rápido campeón. Intenta nuevamente, evita el SPAM.");
+      alert("⚠️ No tan rápido campeón. Intenta nuevamente, evita el SPAM. Estamos junntando platita para la mejora del sistema");
     }
   };
 }
@@ -553,20 +552,18 @@ async function updateTranslationAndPinyin(texto_full) {
     return 0;
   }
 
-  function hanziWithPinyinColored(texto, prefix) {
-    const lines = texto.split("\n"); // Separamos por salto de línea
-    let html = "";
-    const pinyins = window.pinyinPro.pinyin(texto, { toneType: "marks", type: "array" });
+function hanziWithPinyinColored(texto, prefix) {
+  const paragraphs = texto.split("\n"); // separamos por saltos de línea
+  let html = "";
 
-    return texto.split("").map((char, i) => {
-      // Verificamos si es un caracter chino
-      if (char === "\n") {
-        // 🔹 ignoramos saltos de línea completamente
-        return `
-          <div></div>`;
-      }
+  paragraphs.forEach((line, pIndex) => {
+    if (!line.trim()) return; // ignorar líneas vacías
+
+    const pinyins = window.pinyinPro.pinyin(line, { toneType: "marks", type: "array" });
+
+    const lineHtml = line.split("").map((char, i) => {
       if (!/[\u4E00-\u9FFF]/.test(char)) {
-        // si no es chino, lo dejamos tal cual (sin pinyin)
+        // No es chino → lo mostramos igual
         return `
           <div class="hz-pairx">
             <span class="hanzi" style="color:${toneColors['5']}">${char}</span>
@@ -577,19 +574,31 @@ async function updateTranslationAndPinyin(texto_full) {
       const py = pinyins[i] || "";
       const tone = getTone(py);
       const color = toneColors[tone];
-      const id = `${prefix}-${i}`;
+      const id = `${prefix}-p${pIndex}-${i}`;
 
       return `
         <div class="hz-pair" id="${id}-audio">
           <span class="hanzi" style="color:${color}">${char}</span>
           <span class="pinyin" style="color:${color};">${py}</span>
-        </div>
-      `;
+        </div>`;
     }).join("");
-        // Envolvemos cada línea en un DIV independiente
-    html += `<div class="hz-line">${lineHtml}</div>`;
-  }
 
+    // 🔹 Creamos un botón para este párrafo
+    const btnId = `${prefix}-p${pIndex}-btn`;
+    html += `
+      <div class="hz-line">
+        ${createButton(btnId, "🔊", `Reproducir ${line}`, "btnAudio", `${line} (1x)`).outerHTML}
+        ${createButton(btnId + "_slow", "🐢", `Reproducir párrafo ${line} lento`, "btnAudio", `${line} (0.6x)`).outerHTML}
+        <div class="hz-text">${lineHtml}</div>
+      </div>`;
+  });
+
+  return html;
+}
+
+
+  const textoEs = trans.es.replace(/\n/g, "<br>");
+  const textoEn = trans.en.replace(/\n/g, "<br>");
   translationBox.innerHTML = `
     <div class="zh">
       <div class="zh_full">
@@ -607,24 +616,47 @@ async function updateTranslationAndPinyin(texto_full) {
     <strong>English: 
         ${createButton("btnAudio_en", "🔊", "Reproducir pronunciación en English", "btnAudio", "1x").outerHTML}
         ${createButton("btnAudio_en_slow", "🐢", "Reproducir pronunciación en English lento", "btnAudio", "0.6x").outerHTML}
-    </strong><div class="trans"><p>${trans.en}</p></div>
+    </strong><div class="trans"><p>${textoEn}</p></div>
     <strong>Español: 
         ${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en Spanish", "btnAudio", "1x").outerHTML}
         ${createButton("btnAudio_es_slow", "🐢", "Reproducir pronunciación en Spanish lento", "btnAudio", "0.6x").outerHTML}
-    </strong><div class="trans"><p>${trans.es}</p></div>
+    </strong><div class="trans"><p>${textoEs}</p></div>
   `;
 
-  // Para simplificado
-  trans.zh_simp.split("").forEach((char, i) => {
-    const id = `simp-${i}-audio`;
-    attachAudioButton(id, char, "zh", 1.0);
+// Para simplificado: audio por carácter
+trans.zh_simp.split("\n").forEach((line, pIndex) => {
+  line.split("").forEach((char, i) => {
+    if (/[\u4E00-\u9FFF]/.test(char)) {
+      const id = `simp-p${pIndex}-${i}-audio`;
+      attachAudioButton(id, char, "zh", 1.0);
+    }
   });
+});
 
-  // Para tradicional
-  trans.zh_tr.split("").forEach((char, i) => {
-    const id = `trad-${i}-audio`;
-    attachAudioButton(id, char, "zh_HANT", 1.0);
+// Para simplificado: audio por párrafo
+trans.zh_simp.split("\n").forEach((line, pIndex) => {
+  const btnId = `simp-p${pIndex}-btn`;
+  attachAudioButton(btnId, line, "zh", 1.0);
+  attachAudioButton(btnId + "_slow", line, "zh", 0.6);
+});
+
+// Para tradicional: audio por carácter
+trans.zh_tr.split("\n").forEach((line, pIndex) => {
+  line.split("").forEach((char, i) => {
+    if (/[\u4E00-\u9FFF]/.test(char)) {
+      const id = `trad-p${pIndex}-${i}-audio`;
+      attachAudioButton(id, char, "zh_HANT", 1.0);
+    }
   });
+});
+
+// Para tradicional: audio por párrafo
+trans.zh_tr.split("\n").forEach((line, pIndex) => {
+  const btnId = `trad-p${pIndex}-btn`;
+  attachAudioButton(btnId, line, "zh_HANT", 1.0);
+  attachAudioButton(btnId + "_slow", line, "zh_HANT", 0.6);
+});
+
 
   // Botones de audio normal
   attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh_HANT", 1.0);
