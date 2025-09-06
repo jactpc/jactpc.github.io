@@ -8,7 +8,7 @@ function showStep(step) {
   steps.forEach((s, i) => s.classList.toggle('active', i === step));
   stepCircles.forEach((c, i) => c.classList.toggle('active', i === step));
   prevBtn.disabled = step === 0;
-  nextBtn.textContent = step === steps.length - 1 ? 'Enviar' : 'Siguiente';
+  nextBtn.textContent = step === steps.length - 1 ? 'Terminar' : '>';
 }
 
 // Navegación con botones
@@ -727,72 +727,116 @@ function initVoiceStep(textStart) {
   recognition.continuous = false;
   recognition.interimResults = false;
 
-    const rawText = targetInput.value.trim();
-    TargetText = rawText.replace(/[^\u4E00-\u9FFF]/g, "");
-    TargetLength = TargetText.length;
-    targetEl.textContent = rawText;
-    feedbackEl.textContent = "";
-    resultEl.textContent = "";
-    progressEl.textContent = `Objetivo: ${TargetLength} caracteres chinos.`;
+  const rawText = targetInput.value.trim();
+  TargetText = rawText.replace(/[^\u4E00-\u9FFF]/g, "");
+  TargetLength = TargetText.length;
+  targetEl.textContent = rawText;
+  feedbackEl.textContent = "";
+  resultEl.textContent = "";
+  progressEl.textContent = `Objetivo: ${TargetLength} caracteres chinos.`;
 
   recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript.trim();
-      CollectedText += transcript;
+    const transcript = event.results[0][0].transcript.trim();
+    CollectedText += transcript;
 
-      const cleanTranscript = CollectedText.replace(/[^\u4E00-\u9FFF]/g, "");
-      resultEl.textContent = cleanTranscript;
-      progressEl.textContent = `Progreso: ${cleanTranscript.length}/${TargetLength} caracteres`;
+    const cleanTranscript = CollectedText.replace(/[^\u4E00-\u9FFF]/g, "");
+    resultEl.textContent = cleanTranscript;
+    progressEl.textContent = `Progreso: \n${cleanTranscript.length}/${TargetLength} caracteres`;
 
-      if (cleanTranscript.length >= TargetLength) {
-        compareTexts(cleanTranscript, TargetText);
-      }
-    };
-
+    if (cleanTranscript.length >= TargetLength) {
+      compareTexts(cleanTranscript, TargetText);
+    }
+  };
 
   recognition.onend = () => {
-      const cleanTranscript = CollectedText.replace(/[^\u4E00-\u9FFF]/g, "");
-      if (cleanTranscript.length < TargetLength) {
-        recognition.start(); // seguir escuchando
-      }
-    };
+    const cleanTranscript = CollectedText.replace(/[^\u4E00-\u9FFF]/g, "");
+    if (cleanTranscript.length < TargetLength) {
+      recognition.start(); // seguir escuchando
+    }
+  };
 
   function compareTexts(userText, TargetText) {
-      let feedbackHtml = "";
-      const minLength = Math.min(TargetText.length, userText.length);
+    let feedbackHtml = "";
+    const minLength = Math.min(TargetText.length, userText.length);
 
-      for (let i = 0; i < minLength; i++) {
-        if (TargetText[i] === userText[i]) {
-          feedbackHtml += `<span class="correct">${userText[i]}</span>`;
-        } else {
-          feedbackHtml += `<span class="wrong">${userText[i]}</span>`;
-        }
+    for (let i = 0; i < minLength; i++) {
+      if (TargetText[i] === userText[i]) {
+        feedbackHtml += `<span class="correct">${userText[i]}</span>`;
+      } else {
+        feedbackHtml += `<span class="wrong">${userText[i]}</span>`;
       }
-
-      if (userText.length > TargetText.length) {
-        feedbackHtml += userText.slice(TargetText.length)
-          .split("")
-          .map(c => `<span class="wrong">${c}</span>`)
-          .join("");
-      }
-
-      if (TargetText.length > userText.length) {
-        feedbackHtml += `<span class="wrong"> (faltan caracteres)</span>`;
-      }
-
-      feedbackEl.innerHTML = feedbackHtml;
     }
 
-    recognition.onerror = (event) => {
-      feedbackEl.textContent = "⚠️ Error: " + event.error;
-      feedbackEl.style.color = "orange";
-    };
+    if (userText.length > TargetText.length) {
+      feedbackHtml += userText.slice(TargetText.length)
+        .split("")
+        .map(c => `<span class="wrong">${c}</span>`)
+        .join("");
+    }
 
-    startBtn.addEventListener("click", () => {
-      CollectedText = "";
-      feedbackEl.textContent = "🎙️ Escuchando...";
-      feedbackEl.style.color = "blue";
-      recognition.start();
-    });
+    if (TargetText.length > userText.length) {
+      feedbackHtml += `<span class="wrong"> (faltan caracteres)</span>`;
+    }
+
+    feedbackEl.innerHTML = feedbackHtml;
+  }
+
+  recognition.onerror = (event) => {
+    feedbackEl.textContent = "⚠️ Error: " + event.error;
+    feedbackEl.style.color = "orange";
+  };
+
+let isRecording = false; // estado global
+
+startBtn.addEventListener("click", () => {
+  if (!isRecording) {
+    // 🔹 Empezar cuenta regresiva
+    let countdown = 3;
+    startBtn.textContent = `⏳ ${countdown}`;
+    startBtn.style.color = "#fff";
+
+    const timer = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        startBtn.textContent = `⏳ ${countdown}`;
+      } else {
+        clearInterval(timer);
+
+        // 🔹 Reiniciar variables
+        CollectedText = "";
+        feedbackEl.textContent = "🎙️ Escuchando...";
+        feedbackEl.style.color = "blue";
+
+        // 🔹 Cambiar botón a estado grabando
+        startBtn.textContent = "⏹️ Detener";
+        startBtn.style.background = "red";
+        isRecording = true;
+
+        // 🔹 Iniciar reconocimiento
+        recognition.start();
+      }
+    }, 1000);
+
+  } else {
+    // 🔹 Si ya está grabando, el botón detiene
+    recognition.stop();
+    startBtn.textContent = "▶️ Empezar a Practicar";
+    startBtn.style.background = "";
+    startBtn.style.color = "";
+    isRecording = false;
+  }
+});
+
+// 🔹 Si termina solo (ej: silencio)
+recognition.onend = () => {
+  if (isRecording) {
+    isRecording = false;
+    startBtn.textContent = "▶️ Empezar a Practicar";
+    startBtn.style.background = "";
+    startBtn.style.color = "";
+  }
+};
+
 }
 
 window.onload = function () {
