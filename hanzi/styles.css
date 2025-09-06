@@ -9,6 +9,31 @@ body, html {
 * {
   box-sizing: border-box;
 }
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid #ccc;
+    justify-content: space-between;
+  }
+  .tab {
+    padding: 8px 15px;
+    cursor: pointer;
+    margin-right: 5px;
+    border-radius: 6px 6px 0 0;
+  }
+  .tab.active, .tab:hover {
+    font-weight: bold;
+    color: #007bff;
+    border-bottom: 5px solid #007bff;
+  }
+  .tab-content {
+    display: none;
+    padding: 10px;
+    background: white;
+  }
+  .tab-content.active {
+    display: block;
+    min-height: 350px;
+  }
 p{
   font-size: 40px;
   margin: 0 0 0 50px;

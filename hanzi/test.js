@@ -638,29 +638,50 @@ async function updateTranslationAndPinyin(texto_full) {
   const textoEs = trans.es.replace(/\n/g, "<br>");
   const textoEn = trans.en.replace(/\n/g, "<br>");
   translationBox.innerHTML = `
-    <div class="zh">
-      <div class="zh_full">
-        <strong>简体中文: </strong>
-          ${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación Chino Tradicional", "btnAudio", "1x").outerHTML}
-          ${createButton("btnAudio_zhcn_slow", "🐢", "Reproducir pronunciación Chino Tradicional lento", "btnAudio", "0.6x").outerHTML}
-        <div class="zhtxt">${hanziWithPinyinColored(trans.zh_simp, "simp")}</div>
-
-        <strong>繁体中文:</strong>
-          ${createButton("btnAudio_zhsimp", "🔊", "Reproducir pronunciación Chino Simplificado", "btnAudio", "1x").outerHTML}
-          ${createButton("btnAudio_zhsimp_slow", "🐢", "Reproducir pronunciación Chino Simplificado lento", "btnAudio", "0.6x").outerHTML}
-        <div class="zhtxt">${hanziWithPinyinColored(trans.zh_tr, "trad")}</div>    
-      </div>
+    <div class="tabs">
+      <div class="tab active" data-target="zh"><strong>简体中文</strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="zh2"><strong>繁体中文</strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="eng"><strong>English</strong>${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="esp"><strong>Español</strong>${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudioCorto", "").outerHTML}</div>
     </div>
-    <strong>English: 
-        ${createButton("btnAudio_en", "🔊", "Reproducir pronunciación en English", "btnAudio", "1x").outerHTML}
-        ${createButton("btnAudio_en_slow", "🐢", "Reproducir pronunciación en English lento", "btnAudio", "0.6x").outerHTML}
-    </strong><div class="trans"><p>${textoEn}</p></div>
-    <strong>Español: 
-        ${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en Spanish", "btnAudio", "1x").outerHTML}
-        ${createButton("btnAudio_es_slow", "🐢", "Reproducir pronunciación en Spanish lento", "btnAudio", "0.6x").outerHTML}
-    </strong><div class="trans"><p>${textoEs}</p></div>
-  `;
 
+    <div class="tab-content active" id="zh">
+      <strong>简体中文: </strong>
+      ${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudio", "1x").outerHTML}
+      ${createButton("btnAudio_zhcn_slow", "🐢", "Reproducir pronunciación chino simplificado lento", "btnAudio", "0.6x").outerHTML}
+      <div class="zhtxt">${hanziWithPinyinColored(trans.zh_simp, "simp")}</div>
+    </div>
+
+    <div class="tab-content" id="zh2">
+      <strong>繁体中文: </strong>
+      ${createButton("btnAudio_zhsimp", "🔊", "Reproducir pronunciación chino tradicional", "btnAudio", "1x").outerHTML}
+      ${createButton("btnAudio_zhsimp_slow", "🐢", "Reproducir pronunciación chino tradicional lento", "btnAudio", "0.6x").outerHTML}
+      <div class="zhtxt">${hanziWithPinyinColored(trans.zh_tr, "trad")}</div>
+    </div>
+
+    <div class="tab-content" id="eng">
+      <strong>English: </strong>
+      ${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudio", "1x").outerHTML}
+      ${createButton("btnAudio_en_slow", "🐢", "Play English slow", "btnAudio", "0.6x").outerHTML}
+      <div class="trans"><p>${textoEn}</p></div>
+    </div>
+
+    <div class="tab-content" id="esp">
+      <strong>Español: </strong>
+      ${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudio", "1x").outerHTML}
+      ${createButton("btnAudio_es_slow", "🐢", "Reproducir pronunciación en español lento", "btnAudio", "0.6x").outerHTML}
+      <div class="trans"><p>${textoEs}</p></div>
+    </div>
+  `;
+document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.target).classList.add("active");
+    });
+  });
   // Para simplificado: audio por carácter
   trans.zh_simp.split("\n").forEach((line, pIndex) => {
     line.split("").forEach((char, i) => {
@@ -786,57 +807,56 @@ function initVoiceStep(textStart) {
     feedbackEl.style.color = "orange";
   };
 
-let isRecording = false; // estado global
+  let isRecording = false; // estado global
 
-startBtn.addEventListener("click", () => {
-  if (!isRecording) {
-    // 🔹 Empezar cuenta regresiva
-    let countdown = 3;
-    startBtn.textContent = `⏳ ${countdown}`;
-    startBtn.style.color = "#fff";
+  startBtn.addEventListener("click", () => {
+    if (!isRecording) {
+      // 🔹 Empezar cuenta regresiva
+      let countdown = 3;
+      startBtn.textContent = `⏳ ${countdown}`;
+      startBtn.style.color = "#fff";
 
-    const timer = setInterval(() => {
-      countdown--;
-      if (countdown > 0) {
-        startBtn.textContent = `⏳ ${countdown}`;
-      } else {
-        clearInterval(timer);
+      const timer = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          startBtn.textContent = `⏳ ${countdown}`;
+        } else {
+          clearInterval(timer);
 
-        // 🔹 Reiniciar variables
-        CollectedText = "";
-        feedbackEl.textContent = "🎙️ Escuchando...";
-        feedbackEl.style.color = "blue";
+          // 🔹 Reiniciar variables
+          CollectedText = "";
+          feedbackEl.textContent = "🎙️ Escuchando...";
+          feedbackEl.style.color = "blue";
 
-        // 🔹 Cambiar botón a estado grabando
-        startBtn.textContent = "⏹️ Detener";
-        startBtn.style.background = "red";
-        isRecording = true;
+          // 🔹 Cambiar botón a estado grabando
+          startBtn.textContent = "⏹️ Detener";
+          startBtn.style.background = "red";
+          isRecording = true;
 
-        // 🔹 Iniciar reconocimiento
-        recognition.start();
-      }
-    }, 1000);
+          // 🔹 Iniciar reconocimiento
+          recognition.start();
+        }
+      }, 1000);
 
-  } else {
-    // 🔹 Si ya está grabando, el botón detiene
-    recognition.stop();
-    startBtn.textContent = "▶️ Empezar a Practicar";
-    startBtn.style.background = "";
-    startBtn.style.color = "";
-    isRecording = false;
-  }
-});
+    } else {
+      // 🔹 Si ya está grabando, el botón detiene
+      recognition.stop();
+      startBtn.textContent = "▶️ Empezar a Practicar";
+      startBtn.style.background = "";
+      startBtn.style.color = "";
+      isRecording = false;
+    }
+  });
 
-// 🔹 Si termina solo (ej: silencio)
-recognition.onend = () => {
-  if (isRecording) {
-    isRecording = false;
-    startBtn.textContent = "▶️ Empezar a Practicar";
-    startBtn.style.background = "";
-    startBtn.style.color = "";
-  }
-};
-
+  // 🔹 Si termina solo (ej: silencio)
+  recognition.onend = () => {
+    if (isRecording) {
+      isRecording = false;
+      startBtn.textContent = "▶️ Empezar a Practicar";
+      startBtn.style.background = "";
+      startBtn.style.color = "";
+    }
+  };
 }
 
 window.onload = function () {
