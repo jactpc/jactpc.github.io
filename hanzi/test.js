@@ -1,3 +1,41 @@
+const steps = document.querySelectorAll('.step');
+const nextBtn = document.getElementById('nextBtn');
+const prevBtn = document.getElementById('prevBtn');
+const stepCircles = document.querySelectorAll('.step_title');
+let currentStep = 0;
+
+function showStep(step) {
+  steps.forEach((s, i) => s.classList.toggle('active', i === step));
+  stepCircles.forEach((c, i) => c.classList.toggle('active', i === step));
+  prevBtn.disabled = step === 0;
+  nextBtn.textContent = step === steps.length - 1 ? 'Enviar' : 'Siguiente';
+}
+
+// Navegación con botones
+nextBtn.addEventListener('click', () => {
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+  } else {
+    alert('Formulario enviado!');
+    document.getElementById('multiStepForm').reset();
+    currentStep = 0;
+  }
+  showStep(currentStep);
+});
+
+prevBtn.addEventListener('click', () => {
+  if (currentStep > 0) currentStep--;
+  showStep(currentStep);
+});
+
+// Navegación libre haciendo clic en los pasos
+stepCircles.forEach(circle => {
+  circle.addEventListener('click', () => {
+    currentStep = parseInt(circle.getAttribute('data-step'));
+    showStep(currentStep);
+  });
+});
+
 var writers = [];
 
 function printStrokePoints(data) {
@@ -531,6 +569,7 @@ async function updateCharacters() {
 }
 
 async function updateTranslationAndPinyin(texto_full) {
+  const speak = initVoiceStep(texto_full);
   const trans = await fetchTranslation(texto_full);
   const translationBox = document.getElementById('translations');
   const pinyin = window.pinyinPro.pinyin(texto_full, { toneType: 'marks' });
@@ -552,50 +591,49 @@ async function updateTranslationAndPinyin(texto_full) {
     return 0;
   }
 
-function hanziWithPinyinColored(texto, prefix) {
-  const paragraphs = texto.split("\n"); // separamos por saltos de línea
-  let html = "";
+  function hanziWithPinyinColored(texto, prefix) {
+    const paragraphs = texto.split("\n"); // separamos por saltos de línea
+    let html = "";
 
-  paragraphs.forEach((line, pIndex) => {
-    if (!line.trim()) return; // ignorar líneas vacías
+    paragraphs.forEach((line, pIndex) => {
+      if (!line.trim()) return; // ignorar líneas vacías
 
-    const pinyins = window.pinyinPro.pinyin(line, { toneType: "marks", type: "array" });
+      const pinyins = window.pinyinPro.pinyin(line, { toneType: "marks", type: "array" });
 
-    const lineHtml = line.split("").map((char, i) => {
-      if (!/[\u4E00-\u9FFF]/.test(char)) {
-        // No es chino → lo mostramos igual
+      const lineHtml = line.split("").map((char, i) => {
+        if (!/[\u4E00-\u9FFF]/.test(char)) {
+          // No es chino → lo mostramos igual
+          return `
+            <div class="hz-pairx">
+              <span class="hanzi" style="color:${toneColors['5']}">${char}</span>
+              <span class="pinyin" style="color:${toneColors['5']}">${char}</span>
+            </div>`;
+        }
+
+        const py = pinyins[i] || "";
+        const tone = getTone(py);
+        const color = toneColors[tone];
+        const id = `${prefix}-p${pIndex}-${i}`;
+
         return `
-          <div class="hz-pairx">
-            <span class="hanzi" style="color:${toneColors['5']}">${char}</span>
-            <span class="pinyin" style="color:${toneColors['5']}">${char}</span>
+          <div class="hz-pair" id="${id}-audio">
+            <span class="hanzi" style="color:${color}">${char}</span>
+            <span class="pinyin" style="color:${color};">${py}</span>
           </div>`;
-      }
+      }).join("");
 
-      const py = pinyins[i] || "";
-      const tone = getTone(py);
-      const color = toneColors[tone];
-      const id = `${prefix}-p${pIndex}-${i}`;
-
-      return `
-        <div class="hz-pair" id="${id}-audio">
-          <span class="hanzi" style="color:${color}">${char}</span>
-          <span class="pinyin" style="color:${color};">${py}</span>
+      // 🔹 Creamos un botón para este párrafo
+      const btnId = `${prefix}-p${pIndex}-btn`;
+      html += `
+        <div class="hz-line">
+          ${createButton(btnId, "🔊", `Reproducir ${line}`, "btnAudio", `${line} (1x)`).outerHTML}
+          ${createButton(btnId + "_slow", "🐢", `Reproducir párrafo ${line} lento`, "btnAudio", `${line} (0.6x)`).outerHTML}
+          <div class="hz-text">${lineHtml}</div>
         </div>`;
-    }).join("");
+    });
 
-    // 🔹 Creamos un botón para este párrafo
-    const btnId = `${prefix}-p${pIndex}-btn`;
-    html += `
-      <div class="hz-line">
-        ${createButton(btnId, "🔊", `Reproducir ${line}`, "btnAudio", `${line} (1x)`).outerHTML}
-        ${createButton(btnId + "_slow", "🐢", `Reproducir párrafo ${line} lento`, "btnAudio", `${line} (0.6x)`).outerHTML}
-        <div class="hz-text">${lineHtml}</div>
-      </div>`;
-  });
-
-  return html;
-}
-
+    return html;
+  }
 
   const textoEs = trans.es.replace(/\n/g, "<br>");
   const textoEn = trans.en.replace(/\n/g, "<br>");
@@ -623,40 +661,39 @@ function hanziWithPinyinColored(texto, prefix) {
     </strong><div class="trans"><p>${textoEs}</p></div>
   `;
 
-// Para simplificado: audio por carácter
-trans.zh_simp.split("\n").forEach((line, pIndex) => {
-  line.split("").forEach((char, i) => {
-    if (/[\u4E00-\u9FFF]/.test(char)) {
-      const id = `simp-p${pIndex}-${i}-audio`;
-      attachAudioButton(id, char, "zh", 1.0);
-    }
+  // Para simplificado: audio por carácter
+  trans.zh_simp.split("\n").forEach((line, pIndex) => {
+    line.split("").forEach((char, i) => {
+      if (/[\u4E00-\u9FFF]/.test(char)) {
+        const id = `simp-p${pIndex}-${i}-audio`;
+        attachAudioButton(id, char, "zh", 1.0);
+      }
+    });
   });
-});
 
-// Para simplificado: audio por párrafo
-trans.zh_simp.split("\n").forEach((line, pIndex) => {
-  const btnId = `simp-p${pIndex}-btn`;
-  attachAudioButton(btnId, line, "zh", 1.0);
-  attachAudioButton(btnId + "_slow", line, "zh", 0.6);
-});
-
-// Para tradicional: audio por carácter
-trans.zh_tr.split("\n").forEach((line, pIndex) => {
-  line.split("").forEach((char, i) => {
-    if (/[\u4E00-\u9FFF]/.test(char)) {
-      const id = `trad-p${pIndex}-${i}-audio`;
-      attachAudioButton(id, char, "zh_HANT", 1.0);
-    }
+  // Para simplificado: audio por párrafo
+  trans.zh_simp.split("\n").forEach((line, pIndex) => {
+    const btnId = `simp-p${pIndex}-btn`;
+    attachAudioButton(btnId, line, "zh", 1.0);
+    attachAudioButton(btnId + "_slow", line, "zh", 0.6);
   });
-});
 
-// Para tradicional: audio por párrafo
-trans.zh_tr.split("\n").forEach((line, pIndex) => {
-  const btnId = `trad-p${pIndex}-btn`;
-  attachAudioButton(btnId, line, "zh_HANT", 1.0);
-  attachAudioButton(btnId + "_slow", line, "zh_HANT", 0.6);
-});
+  // Para tradicional: audio por carácter
+  trans.zh_tr.split("\n").forEach((line, pIndex) => {
+    line.split("").forEach((char, i) => {
+      if (/[\u4E00-\u9FFF]/.test(char)) {
+        const id = `trad-p${pIndex}-${i}-audio`;
+        attachAudioButton(id, char, "zh_HANT", 1.0);
+      }
+    });
+  });
 
+  // Para tradicional: audio por párrafo
+  trans.zh_tr.split("\n").forEach((line, pIndex) => {
+    const btnId = `trad-p${pIndex}-btn`;
+    attachAudioButton(btnId, line, "zh_HANT", 1.0);
+    attachAudioButton(btnId + "_slow", line, "zh_HANT", 0.6);
+  });
 
   // Botones de audio normal
   attachAudioButton("btnAudio_zhcn", trans.zh_simp, "zh_HANT", 1.0);
@@ -671,7 +708,96 @@ trans.zh_tr.split("\n").forEach((line, pIndex) => {
   attachAudioButton("btnAudio_es_slow", trans.es, "es", 0.6);
 }
 
+let TargetText = "";
+let TargetLength = 0;
+let CollectedText = "";
+
+function initVoiceStep(textStart) {
+  const targetInput = document.getElementById("char-input");
+  const startBtn = document.getElementById("startBtn");
+  const targetEl = document.getElementById("target_object");
+  const resultEl = document.getElementById("result");
+  const feedbackEl = document.getElementById("feedback");
+  const progressEl = document.getElementById("progress");
+  targetEl.textContent=textStart;
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.lang = "zh-CN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+    const rawText = targetInput.value.trim();
+    TargetText = rawText.replace(/[^\u4E00-\u9FFF]/g, "");
+    TargetLength = TargetText.length;
+    targetEl.textContent = rawText;
+    feedbackEl.textContent = "";
+    resultEl.textContent = "";
+    progressEl.textContent = `Objetivo: ${TargetLength} caracteres chinos.`;
+
+  recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.trim();
+      CollectedText += transcript;
+
+      const cleanTranscript = CollectedText.replace(/[^\u4E00-\u9FFF]/g, "");
+      resultEl.textContent = cleanTranscript;
+      progressEl.textContent = `Progreso: ${cleanTranscript.length}/${TargetLength} caracteres`;
+
+      if (cleanTranscript.length >= TargetLength) {
+        compareTexts(cleanTranscript, TargetText);
+      }
+    };
+
+
+  recognition.onend = () => {
+      const cleanTranscript = CollectedText.replace(/[^\u4E00-\u9FFF]/g, "");
+      if (cleanTranscript.length < TargetLength) {
+        recognition.start(); // seguir escuchando
+      }
+    };
+
+  function compareTexts(userText, TargetText) {
+      let feedbackHtml = "";
+      const minLength = Math.min(TargetText.length, userText.length);
+
+      for (let i = 0; i < minLength; i++) {
+        if (TargetText[i] === userText[i]) {
+          feedbackHtml += `<span class="correct">${userText[i]}</span>`;
+        } else {
+          feedbackHtml += `<span class="wrong">${userText[i]}</span>`;
+        }
+      }
+
+      if (userText.length > TargetText.length) {
+        feedbackHtml += userText.slice(TargetText.length)
+          .split("")
+          .map(c => `<span class="wrong">${c}</span>`)
+          .join("");
+      }
+
+      if (TargetText.length > userText.length) {
+        feedbackHtml += `<span class="wrong"> (faltan caracteres)</span>`;
+      }
+
+      feedbackEl.innerHTML = feedbackHtml;
+    }
+
+    recognition.onerror = (event) => {
+      feedbackEl.textContent = "⚠️ Error: " + event.error;
+      feedbackEl.style.color = "orange";
+    };
+
+    startBtn.addEventListener("click", () => {
+      CollectedText = "";
+      feedbackEl.textContent = "🎙️ Escuchando...";
+      feedbackEl.style.color = "blue";
+      recognition.start();
+    });
+}
+
 window.onload = function () {
+  showStep(currentStep);
+
   const char = decodeURIComponent(window.location.hash.slice(1));
   if (char) {
     document.querySelector('.js-char').value = char;

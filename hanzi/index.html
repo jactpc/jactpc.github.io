@@ -10,21 +10,46 @@
 <body>
   <h1 class="title">Hanzi Writer by JACTPCL</h1>
 
-<form class="js-char-form char-form">
-  <label for="char-input" class="form-label">Character(s)</label>
-  <div class="form-row">
-    <textarea id="char-input" 
-          class="js-char char-input" 
-          rows="3" 
-          cols="20" 
-          maxlength="200"
-          placeholder="Escribe caracteres aquí...">我爱你</textarea>  
-    <button type="submit" id="Update">🔎</button>
-  </div>
-</form>
+  <form class="js-char-form char-form">
+    <label for="char-input" class="form-label">Character(s)</label>
+    <div class="form-row">
+      <textarea id="char-input" 
+            class="js-char char-input" 
+            rows="3" 
+            cols="20" 
+            maxlength="200"
+            placeholder="Escribe caracteres aquí...">我爱你</textarea>  
+      <button type="submit" id="Update">🔎</button>
+    </div>
+  </form>
 
-  <div id="translations"></div>
-  <div id="target"></div>
+  <div class="form-container">
+    <div class="steps-indicator">
+      <div data-step="0" class="step_title active">👂 Escuchar</div>
+      <div data-step="1" class="step_title">✍️ Practicar</div>
+      <div data-step="2" class="step_title">🗣️ Hablar</div>
+    </div>
+
+    <form id="multiStepForm">
+      <div id="translations" class="step active"></div>
+      <div id="target" class="step"></div>
+
+      <div class="step">
+        <h2>Frase objetivo:</h2>
+        <p id="target_object"></p>
+
+        <button id="startBtn">🎤 Empezar a hablar</button>
+        <p><b>Reconocido:</b> <span id="result"></span></p>
+        <p><b>Evaluación:</b> <span id="feedback"></span></p>
+        <p class="progress" id="progress"></p>
+      </div>
+
+      <div class="buttons">
+        <button type="button" id="prevBtn" disabled>Anterior</button>
+        <button type="button" id="nextBtn">Siguiente</button>
+      </div>
+    </form>
+  </div>
   <script type="application/javascript" src="test.js"></script>
 </body>
 </html>

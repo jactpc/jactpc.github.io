@@ -1,192 +1,121 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="zh">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>214 Radicales Kangxi – Demo</title>
+  <meta charset="UTF-8">
+  <title>Pronunciación con entrada personalizada</title>
   <style>
-    :root { --max-mobile: 400px; }
-    * { box-sizing: border-box; }
-    body, html { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:#f7f7f7; }
-    header { background:#222; color:#fff; padding:16px; text-align:center; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
-
-    /* Responsive width as requested */
-    .canvas { margin: 0 auto; max-width: 100%; }
-    @media (max-width: 480px) {
-      .canvas { max-width: var(--max-mobile); width: 100%; }
-    }
-
-    .controls { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
-    .controls input { flex:1 1 260px; padding:10px 12px; font-size:16px; border:1px solid #ddd; border-radius:10px; }
-    .legend { font-size: 13px; color:#555; }
-
-    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 12px; }
-    .cell { background:#fff; border-radius:14px; border:1px solid #eee; padding:10px 8px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,.06); cursor:pointer; transition: transform .08s ease; }
-    .cell:hover { transform: translateY(-2px); }
-    .num { font-size: 12px; color:#888; }
-    .rad { font-size: 34px; line-height: 1.2; }
-    .hint { font-size: 11px; color:#666; margin-top:6px; min-height: 14px; }
-
-    .drawer { margin-top:16px; background:#fff; border:1px solid #eee; border-radius:16px; padding:12px; display:none; }
-    .drawer.open { display:block; }
-    .drawer h3 { margin:6px 0 8px; font-size:16px; }
-    .drawer .hanzi { font-size: 46px; }
-    .pair { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .pair code { background:#f1f1f1; border-radius:8px; padding:2px 6px; font-size:12px; }
-    .note { font-size: 12px; color:#666; }
-    .actions { display:flex; gap:8px; flex-wrap:wrap; }
-    button.icon { background:#fafafa; border:1px solid #ddd; padding:6px 10px; border-radius:10px; cursor:pointer; font-size:16px; }
-    button.icon:hover { border-color:#aaa; }
+    .correct { color: green; font-weight: bold; }
+    .wrong { color: red; font-weight: bold; }
+    .progress { margin-top: 10px; font-weight: bold; }
   </style>
-  <!-- (Opcional) Carga Hanzi Writer si quieres animar el equivalente real -->
-  <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 </head>
 <body>
-  <header>
-    <h1>214 Radicales Kangxi</h1>
-    <div class="legend">Haz clic en un radical para ver detalle y su equivalente como hanzi real (cuando aplique).</div>
-  </header>
+  <h2>Escribe la frase objetivo:</h2>
+  <textarea id="targetInput" rows="3" cols="40">你好！請問，這個杯子多少錢？</textarea>
+  <br>
+  <button id="setTarget">✅ Usar frase</button>
+  
+  <h2>Frase objetivo:</h2>
+  <p id="target"></p>
 
-  <main class="wrap">
-    <section class="canvas">
-      <div class="controls">
-        <input id="q" type="search" placeholder="Filtrar por número (1-214) o carácter…" />
-        <div class="legend">Total: <span id="count">214</span></div>
-      </div>
-      <div id="grid" class="grid" aria-live="polite"></div>
-
-      <div id="drawer" class="drawer" aria-live="polite">
-        <h3 id="drawerTitle">Radical</h3>
-        <div class="pair">
-          <div>
-            <div class="num" id="drawerNum"></div>
-            <div class="hanzi" id="drawerRad"></div>
-          </div>
-          <div>
-            <div class="note">Equivalente hanzi (si existe):</div>
-            <div class="hanzi" id="drawerEq">—</div>
-          </div>
-        </div>
-        <div class="actions" style="margin-top:8px;">
-          <button class="icon" id="btnCopy" title="Copiar radical">📋 Copiar</button>
-          <button class="icon" id="btnShowEq" title="Mostrar equivalente en lienzo (si existe)">🈶 Mostrar equivalente</button>
-        </div>
-        <div id="writerMount" style="margin-top:12px; width:300px; height:300px;"></div>
-      </div>
-    </section>
-  </main>
+  <button id="startBtn">🎤 Empezar a hablar</button>
+  <p><b>Reconocido:</b> <span id="result"></span></p>
+  <p><b>Evaluación:</b> <span id="feedback"></span></p>
+  <p class="progress" id="progress"></p>
 
   <script>
-    // Genera los 214 símbolos del bloque Kangxi Radicals (U+2F00..U+2FD5)
-    const KANGXI_START = 0x2F00; // ⼀
-    const radicals = Array.from({length: 214}, (_, i) => ({
-      n: i + 1,
-      sym: String.fromCodePoint(KANGXI_START + i)
-    }));
+    const targetInput = document.getElementById("targetInput");
+    const setTargetBtn = document.getElementById("setTarget");
+    const startBtn = document.getElementById("startBtn");
+    const targetEl = document.getElementById("target");
+    const resultEl = document.getElementById("result");
+    const feedbackEl = document.getElementById("feedback");
+    const progressEl = document.getElementById("progress");
 
-    // Mapeo (incompleto pero útil) de algunos radicales a su hanzi "real" o representativo.
-    // Amplía esta tabla según tus necesidades.
-    const radicalToHanzi = {
-      '⼀': '一', '⼁': '丨', '⼂': '丶', '⼃': '丿', '⼄': '乙', '⼅': '亅',
-      '⼈': '人', '⺅': '人', '⼉': '儿', '⼋': '八', '⼑': '刀', '⼕': '厂', '⼔': '又',
-      '⼥': '女', '⼦': '子', '⼭': '山', '⼸': '弓', '⼼': '心', '⺗': '心', '⼶': '欠',
-      '⽕': '火', '⺣': '火', '⽔': '水', '⺡': '水', '⽊': '木', '⽕': '火', '⼟': '土',
-      '⽝': '犬', '⺨': '犬', '⽺': '羊', '⺷': '羊', '⽥': '田', '⽳': '穴', '⽴': '立',
-      '⾁': '肉', '⺼': '肉', '⾏': '行', '⻌': '辶', '⻍': '辶', '⻎': '辶',
-      '⾵': '風', '⻛': '风', '⾴': '頁', '⻑': '長', '⻓': '长', '⾨': '門', '⻔': '门',
-      '⾴': '页', '⻣': '骨', '⻤': '鬼', '⻨': '麦', '⻩': '黄', '⻫': '齐', '⻭': '齿',
-      '⾝': '身', '⾜': '足', '⾻': '骨', '⾽': '魚', '⻥': '鱼', '⿂': '魚',
-      '⾾': '鳥', '⻦': '鸟', '⿃': '鳥', '⾧': '長'
+    let targetText = "";
+    let targetLength = 0;
+    let collectedText = "";
+
+    // Web Speech API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "zh-CN";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    // Cuando el usuario define la frase
+    setTargetBtn.addEventListener("click", () => {
+      const rawText = targetInput.value.trim();
+      // Solo caracteres chinos (omitimos signos y espacios)
+      targetText = rawText.replace(/[^\u4E00-\u9FFF]/g, "");
+      targetLength = targetText.length;
+      targetEl.textContent = rawText;
+      feedbackEl.textContent = "";
+      resultEl.textContent = "";
+      progressEl.textContent = `Objetivo: ${targetLength} caracteres chinos.`;
+    });
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.trim();
+      collectedText += transcript;
+
+      const cleanTranscript = collectedText.replace(/[^\u4E00-\u9FFF]/g, "");
+      resultEl.textContent = cleanTranscript;
+      progressEl.textContent = `Progreso: ${cleanTranscript.length}/${targetLength} caracteres`;
+
+      if (cleanTranscript.length >= targetLength) {
+        compareTexts(cleanTranscript, targetText);
+      }
     };
 
-    const grid = document.getElementById('grid');
-    const drawer = document.getElementById('drawer');
-    const drawerTitle = document.getElementById('drawerTitle');
-    const drawerNum = document.getElementById('drawerNum');
-    const drawerRad = document.getElementById('drawerRad');
-    const drawerEq = document.getElementById('drawerEq');
-    const writerMount = document.getElementById('writerMount');
-    const btnCopy = document.getElementById('btnCopy');
-    const btnShowEq = document.getElementById('btnShowEq');
-    const countEl = document.getElementById('count');
+    recognition.onend = () => {
+      const cleanTranscript = collectedText.replace(/[^\u4E00-\u9FFF]/g, "");
+      if (cleanTranscript.length < targetLength) {
+        recognition.start(); // seguir escuchando
+      }
+    };
 
-    let current = null; // { n, sym }
-    let writer = null;
+    function compareTexts(userText, targetText) {
+      let feedbackHtml = "";
+      const minLength = Math.min(targetText.length, userText.length);
 
-    function render(list) {
-      grid.innerHTML = '';
-      list.forEach(({n, sym}) => {
-        const cell = document.createElement('button');
-        cell.className = 'cell';
-        cell.title = `Radical #${n}`;
-        cell.innerHTML = `<div class="num">#${n}</div><div class="rad">${sym}</div><div class="hint">${radicalToHanzi[sym] || ''}</div>`;
-        cell.addEventListener('click', () => openDrawer({n, sym}));
-        grid.appendChild(cell);
-      });
-      countEl.textContent = list.length;
+      for (let i = 0; i < minLength; i++) {
+        if (targetText[i] === userText[i]) {
+          feedbackHtml += `<span class="correct">${userText[i]}</span>`;
+        } else {
+          feedbackHtml += `<span class="wrong">${userText[i]}</span>`;
+        }
+      }
+
+      if (userText.length > targetText.length) {
+        feedbackHtml += userText.slice(targetText.length)
+          .split("")
+          .map(c => `<span class="wrong">${c}</span>`)
+          .join("");
+      }
+
+      if (targetText.length > userText.length) {
+        feedbackHtml += `<span class="wrong"> (faltan caracteres)</span>`;
+      }
+
+      feedbackEl.innerHTML = feedbackHtml;
     }
 
-    function openDrawer(item) {
-      current = item;
-      drawerTitle.textContent = `Radical #${item.n}`;
-      drawerNum.textContent = `Código: U+${item.sym.codePointAt(0).toString(16).toUpperCase()}`;
-      drawerRad.textContent = item.sym;
-      const eq = radicalToHanzi[item.sym] || '—';
-      drawerEq.textContent = eq;
-      drawer.classList.add('open');
+    recognition.onerror = (event) => {
+      feedbackEl.textContent = "⚠️ Error: " + event.error;
+      feedbackEl.style.color = "orange";
+    };
 
-      // Limpiar y opcionalmente montar HanziWriter si hay equivalente real
-      writerMount.innerHTML = '';
-      if (eq && eq !== '—' && window.HanziWriter) {
-        writer = HanziWriter.create(writerMount, eq, {
-          width: 300,
-          height: 300,
-          padding: 10,
-          showCharacter: true,
-          showOutline: true,
-          radicalColor: '#166E16'
-        });
-        // Iniciar en modo animate para mostrar trazos del equivalente
-        writer.animateCharacter();
-      }
-    }
-
-    // Búsqueda por número o por carácter
-    const q = document.getElementById('q');
-    q.addEventListener('input', () => {
-      const v = q.value.trim();
-      if (!v) return render(radicals);
-      const num = Number(v);
-      if (!Number.isNaN(num)) {
-        render(radicals.filter(r => r.n === num));
-      } else {
-        render(radicals.filter(r => r.sym.includes(v)));
-      }
+    startBtn.addEventListener("click", () => {
+      collectedText = "";
+      feedbackEl.textContent = "🎙️ Escuchando...";
+      feedbackEl.style.color = "blue";
+      recognition.start();
     });
 
-    // Copiar radical seleccionado
-    btnCopy.addEventListener('click', async () => {
-      if (!current) return;
-      try { await navigator.clipboard.writeText(current.sym); } catch {}
-    });
-
-    // Mostrar equivalente en el lienzo (si existe)
-    btnShowEq.addEventListener('click', () => {
-      if (!current) return;
-      const eq = radicalToHanzi[current.sym];
-      if (!eq) return;
-      writerMount.innerHTML = '';
-      if (window.HanziWriter) {
-        writer = HanziWriter.create(writerMount, eq, {
-          width: 300, height: 300, padding: 10, showCharacter: true, showOutline: true, radicalColor: '#166E16'
-        });
-        writer.quiz({ showOutline: true });
-      }
-    });
-
-    // Render inicial
-    render(radicals);
+    // Inicializamos con el texto del textarea
+    setTargetBtn.click();
   </script>
 </body>
 </html>
