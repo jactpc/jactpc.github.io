@@ -48,7 +48,8 @@ steps.forEach(step => {
     let endX = e.changedTouches[0].clientX;
     let diff = startX1 - endX;
 
-    if (Math.abs(diff) > 50) { // umbral de 50px
+    const threshold = window.innerWidth * 0.40;
+    if (Math.abs(diff) > threshold) { // umbral de 50px
       if (diff > 0 && currentStep < steps.length - 1) {
         // swipe left → siguiente step
         currentStep++;
