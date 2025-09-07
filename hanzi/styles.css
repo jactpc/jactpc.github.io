@@ -27,7 +27,7 @@ body, html {
   }
   .tab-content {
     display: none;
-    padding: 10px;
+    padding: 50px 0;;
     background: white;
   }
   .tab-content.active {
@@ -107,6 +107,7 @@ button, #target {
 #translations .trans, #translations .zh{
   display: flex;
   align-items: center;
+  margin-top: 50px;
 }
 .correct { color: green; font-weight: bold; }
 .wrong { color: red; font-weight: bold; }
@@ -232,6 +233,9 @@ button {
 }
 button.btnFeatures{
   width: auto;
+}
+button.btnAudioCorto{
+  border-radius: 50%;
 }
 button.btnAudio{
   min-width: 115px;

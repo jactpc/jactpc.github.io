@@ -626,12 +626,13 @@ async function updateTranslationAndPinyin(texto_full) {
       const btnId = `${prefix}-p${pIndex}-btn`;
       html += `
         <div class="hz-line">
-          ${createButton(btnId, "🔊", `Reproducir ${line}`, "btnAudio", `${line} (1x)`).outerHTML}
-          ${createButton(btnId + "_slow", "🐢", `Reproducir párrafo ${line} lento`, "btnAudio", `${line} (0.6x)`).outerHTML}
           <div class="hz-text">${lineHtml}</div>
+          <div style="display: flex;margin: 20px;">
+            ${createButton(btnId, "🔊1x", `Reproducir ${line}`, "btnAudio", `${line}`).outerHTML}
+            ${createButton(btnId + "_slow", "🐢0.6x", `Reproducir párrafo ${line} lento`, "btnAudio", `${line}`).outerHTML}
+          </div>
         </div>`;
     });
-
     return html;
   }
 
@@ -639,10 +640,10 @@ async function updateTranslationAndPinyin(texto_full) {
   const textoEn = trans.en.replace(/\n/g, "<br>");
   translationBox.innerHTML = `
     <div class="tabs">
-      <div class="tab active" data-target="zh"><strong>简体中文</strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
-      <div class="tab" data-target="zh2"><strong>繁体中文</strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
-      <div class="tab" data-target="eng"><strong>English</strong>${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudioCorto", "").outerHTML}</div>
-      <div class="tab" data-target="esp"><strong>Español</strong>${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab active" data-target="zh"><strong>简体中文 </strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="zh2"><strong>繁体中文 </strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="eng"><strong>EN </strong>${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="esp"><strong>ES </strong>${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudioCorto", "").outerHTML}</div>
     </div>
 
     <div class="tab-content active" id="zh">
@@ -673,7 +674,7 @@ async function updateTranslationAndPinyin(texto_full) {
       <div class="trans"><p>${textoEs}</p></div>
     </div>
   `;
-document.querySelectorAll(".tab").forEach(tab => {
+  document.querySelectorAll(".tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
@@ -682,6 +683,39 @@ document.querySelectorAll(".tab").forEach(tab => {
       document.getElementById(tab.dataset.target).classList.add("active");
     });
   });
+
+  let startX = 0;
+let currentTabIndex = 0;
+const tabs = document.querySelectorAll(".tab");
+const contents = document.querySelectorAll(".tab-content");
+
+function activateTab(index) {
+  tabs.forEach(t => t.classList.remove("active"));
+  contents.forEach(c => c.classList.remove("active"));
+  tabs[index].classList.add("active");
+  contents[index].classList.add("active");
+  currentTabIndex = index;
+}
+
+contents.forEach(content => {
+  content.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  });
+  
+  content.addEventListener("touchend", e => {
+    let endX = e.changedTouches[0].clientX;
+    let diff = startX - endX;
+    if (Math.abs(diff) > 50) { // umbral de 50px
+      if (diff > 0 && currentTabIndex < tabs.length - 1) {
+        activateTab(currentTabIndex + 1); // swipe left → siguiente tab
+      } else if (diff < 0 && currentTabIndex > 0) {
+        activateTab(currentTabIndex - 1); // swipe right → tab anterior
+      }
+    }
+  });
+});
+
+
   // Para simplificado: audio por carácter
   trans.zh_simp.split("\n").forEach((line, pIndex) => {
     line.split("").forEach((char, i) => {
