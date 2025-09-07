@@ -36,6 +36,32 @@ stepCircles.forEach(circle => {
   });
 });
 
+let startX1 = 0;
+
+// Agregar eventos touch a cada step
+steps.forEach(step => {
+  step.addEventListener("touchstart", e => {
+    startX1 = e.touches[0].clientX;
+  });
+
+  step.addEventListener("touchend", e => {
+    let endX = e.changedTouches[0].clientX;
+    let diff = startX1 - endX;
+
+    if (Math.abs(diff) > 50) { // umbral de 50px
+      if (diff > 0 && currentStep < steps.length - 1) {
+        // swipe left → siguiente step
+        currentStep++;
+        showStep(currentStep);
+      } else if (diff < 0 && currentStep > 0) {
+        // swipe right → step anterior
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+  });
+});
+
 var writers = [];
 
 function printStrokePoints(data) {
@@ -645,7 +671,6 @@ async function updateTranslationAndPinyin(texto_full) {
       <div class="tab" data-target="eng"><strong>EN </strong>${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudioCorto", "").outerHTML}</div>
       <div class="tab" data-target="esp"><strong>ES </strong>${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudioCorto", "").outerHTML}</div>
     </div>
-
     <div class="tab-content active" id="zh">
       <strong>简体中文: </strong>
       ${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudio", "1x").outerHTML}
@@ -685,35 +710,29 @@ async function updateTranslationAndPinyin(texto_full) {
   });
 
   let startX = 0;
-let currentTabIndex = 0;
-const tabs = document.querySelectorAll(".tab");
-const contents = document.querySelectorAll(".tab-content");
+  let currentTabIndex = 0;
+  const tabs = document.querySelectorAll(".tab");
+  const contents = document.querySelectorAll(".tab-content");
 
-function activateTab(index) {
+function activateTab(index, direction = "left") {
   tabs.forEach(t => t.classList.remove("active"));
-  contents.forEach(c => c.classList.remove("active"));
+  contents.forEach(c => {
+    c.classList.remove("active", "slide-in-left", "slide-in-right");
+  });
+
   tabs[index].classList.add("active");
-  contents[index].classList.add("active");
+
+  // aplicar clase de animación según dirección
+  if (direction === "left") {
+    contents[index].classList.add("active", "slide-in-left");
+  } else {
+    contents[index].classList.add("active", "slide-in-right");
+  }
+
   currentTabIndex = index;
 }
 
-contents.forEach(content => {
-  content.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-  });
-  
-  content.addEventListener("touchend", e => {
-    let endX = e.changedTouches[0].clientX;
-    let diff = startX - endX;
-    if (Math.abs(diff) > 50) { // umbral de 50px
-      if (diff > 0 && currentTabIndex < tabs.length - 1) {
-        activateTab(currentTabIndex + 1); // swipe left → siguiente tab
-      } else if (diff < 0 && currentTabIndex > 0) {
-        activateTab(currentTabIndex - 1); // swipe right → tab anterior
-      }
-    }
-  });
-});
+
 
 
   // Para simplificado: audio por carácter
