@@ -1,4 +1,3 @@
-const step_title_touch = document.querySelectorAll('.step_title');
 const steps = document.querySelectorAll('.step');
 const nextBtn = document.getElementById('nextBtn');
 const prevBtn = document.getElementById('prevBtn');
@@ -441,15 +440,20 @@ async function updateCharacters() {
   if (submitBtn) submitBtn.disabled = true;
   translationBox.innerHTML = `<p style="color: gray;">⏳ Obteniendo datos...</p>`;
 
-    const char_full = document.createElement('div');
-    char_full.className = "con_Char";
-    char_full.id = `con_Char`;
-    container.appendChild(char_full);
+  const tabIndicador = document.createElement("div");
+  tabIndicador.className = "charTabIndicador";
+  container.appendChild(tabIndicador);
 
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
     const pinyinChar = window.pinyinPro.pinyin(char, { toneType: 'marks' });
 
+    const char_tab = document.createElement("div");
+    char_tab.className = "hanzi charTabtitte";
+    char_tab.id = `charTabIndicador_${i}`;
+    char_tab.textContent = `${char}`;
+    tabIndicador.appendChild(char_tab);
+    
     // === Construcción del bloque ===
     const charContainer = document.createElement('div');
     charContainer.className = "con_hanzi";
@@ -470,13 +474,11 @@ async function updateCharacters() {
     const btnAudio = createButton(`pinyin_audio_${i}`,"🔊", "Pronunciación normal","btnAudio", `${char} 1x`);
     btnAudio.id = `pinyin_audio_${i}`;
     charContainer.appendChild(btnAudio);
-    container.appendChild(charContainer);
     attachAudioButton(btnAudio.id, char, "zh", 1.0);
 
     const btnAudioSlow = createButton(`pinyin_audio_slow_${i}`,"🐢", "Pronunciación lenta", "btnAudio", `${char} 0.6x`);
     btnAudioSlow.id = `pinyin_audio_slow_${i}`;
     charContainer.appendChild(btnAudioSlow);
-    container.appendChild(charContainer);
     attachAudioButton(btnAudioSlow.id, char, "zh", 0.6);
 
     // Div para mostrar RAW
@@ -590,10 +592,46 @@ async function updateCharacters() {
         // Aplicar colores dinámicamente
         charDiv.style.boxShadow = `inset 0px 0px 22px 9px ${bgColor}`;
         punctuationDiv.style.boxShadow = `1px 0px 0px 4px ${bgColor}`;
+        char_tab.style.color = `${bgColor}`;
       }
 
     });
   }
+
+  // =============================
+// 🔥 Vincular charTabIndicador_X con con_hanzi_X
+// =============================
+
+// Seleccionar todos los tabs y los contenedores
+const charTabs = document.querySelectorAll('[id^="charTabIndicador_"]');
+const charContents = document.querySelectorAll('[id^="con_hanzi_"]');
+
+function showCharContent(index) {
+  // Mostrar solo el contenido correspondiente
+  charContents.forEach((c, i) => {
+    c.style.display = (i === index) ? "block" : "none";
+  });
+
+  // Marcar tab activo
+  charTabs.forEach((t, i) => {
+    t.classList.toggle("active", i === index);
+  });
+}
+
+// Asignar eventos de click a cada tab
+charTabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    const index = parseInt(tab.id.split("_")[1]); // obtener el número (X)
+    showCharContent(index);
+  });
+});
+
+// Mostrar el primer carácter por defecto
+if (charContents.length > 0) {
+  showCharContent(0);
+}
+
+
   // Actualizar traducción y pinyin global para todo el texto
   await updateTranslationAndPinyin(texto_full);
 
@@ -738,9 +776,6 @@ function activateTab(index, direction = "left") {
 
   currentTabIndex = index;
 }
-
-
-
 
   // Para simplificado: audio por carácter
   trans.zh_simp.split("\n").forEach((line, pIndex) => {

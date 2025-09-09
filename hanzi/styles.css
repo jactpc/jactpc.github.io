@@ -85,7 +85,7 @@ button, #target {
   font-size: 3em;
 }
 .con_hanzi{
-  display: inline-block;
+  display: none;
   text-align: center;
   width: 810px;
   margin-top: 40px;
@@ -140,6 +140,12 @@ button, #target {
 }
 .hz-pairx{
   width: 60px;
+}
+.charTabIndicador{
+  display: inline-flex;
+  width: 800px;
+  height: 120px;
+  overflow-x: scroll;
 }
 .hz-pair, .hz-pairx{
   display:inline-block;
