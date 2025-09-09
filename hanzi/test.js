@@ -1,3 +1,4 @@
+const step_title_touch = document.querySelectorAll('.step_title');
 const steps = document.querySelectorAll('.step');
 const nextBtn = document.getElementById('nextBtn');
 const prevBtn = document.getElementById('prevBtn');
@@ -39,7 +40,7 @@ stepCircles.forEach(circle => {
 let startX1 = 0;
 
 // Agregar eventos touch a cada step
-steps.forEach(step => {
+stepCircles.forEach(step => {
   step.addEventListener("touchstart", e => {
     startX1 = e.touches[0].clientX;
   });
@@ -50,7 +51,7 @@ steps.forEach(step => {
 
     const threshold = window.innerWidth * 0.40;
     if (Math.abs(diff) > threshold) { // umbral de 50px
-      if (diff > 0 && currentStep < steps.length - 1) {
+      if (diff > 0 && currentStep < stepCircles.length - 1) {
         // swipe left → siguiente step
         currentStep++;
         showStep(currentStep);
@@ -439,6 +440,11 @@ async function updateCharacters() {
   // Bloquear botón y mostrar mensaje de carga
   if (submitBtn) submitBtn.disabled = true;
   translationBox.innerHTML = `<p style="color: gray;">⏳ Obteniendo datos...</p>`;
+
+    const char_full = document.createElement('div');
+    char_full.className = "con_Char";
+    char_full.id = `con_Char`;
+    container.appendChild(char_full);
 
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
