@@ -598,33 +598,24 @@ async function updateCharacters() {
         charDiv.style.boxShadow = `inset 0px 0px 22px 9px ${bgColor}`;
         punctuationDiv.style.boxShadow = `1px 0px 0px 4px ${bgColor}`;
         char_tab.style.background = `${bgColor}`;
-        char_tab.style.borderRadius = `50%`;
 
         // Crear banner
     const banner = document.createElement("div");
     banner.className = "score-banner";
-    banner.style.background = bgColor;
-    banner.style.color = "#fff";
-    banner.style.padding = "15px";
-    banner.style.marginTop = "10px";
-    banner.style.textAlign = "center";
-    banner.style.borderRadius = "8px";
     banner.innerHTML = `
       <p>✅ Has completado el carácter <b>${char}</b></p>
-      <p>Trazos: ${totalStrokes} | Errores: ${mistakes} | Calificación: ${score}%</p>
+      <b>Trazos: ${totalStrokes}</b>
+      <b>Errores: ${mistakes}</b>
+      <b>Calificación: ${score}%</b>
     `;
 
     // Crear botón de siguiente
     const nextBtnHan = document.createElement("button");
-    nextBtnHan.textContent = "➡️ Siguiente carácter";
-    nextBtnHan.style.marginTop = "10px";
-    nextBtnHan.style.padding = "10px 20px";
-    nextBtnHan.style.borderRadius = "6px";
-    nextBtnHan.style.border = "none";
-    nextBtnHan.style.cursor = "pointer";
+    nextBtnHan.textContent = "＞";
+    nextBtnHan.className = "nextBtnHan";
 
     banner.appendChild(nextBtnHan);
-    punctuationDiv.appendChild(banner);
+    charContainer.appendChild(banner);
 
     // Acción del botón
     nextBtnHan.addEventListener("click", () => {

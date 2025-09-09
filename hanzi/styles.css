@@ -45,9 +45,13 @@ body, html {
   position: relative;
 }
 p{
-  font-size: 40px;
+  font-size: 58px;
   margin: 0 0 0 50px;
   padding: 5px;
+}
+b{
+  font-size: 40px;
+      display: block;
 }
 input, button {
   outline: none;
@@ -82,9 +86,21 @@ button, #target {
   color: #888;
 }
 .charTabtitle:hover, .charTabtitle.active{
-  border-bottom: 2px solid #007bff;
+  border-bottom: 4px solid #007bff;
   color: #007bff;
   cursor: pointer;
+}
+.score-banner{
+    background: rgb(255 255 255 / 91%);
+    color: rgb(0 0 0);
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+    position: absolute;
+    bottom: 174px;
+    width: 97%;
+    height: 56%;
+    margin: 10px;
 }
 .radicalDiv{
   font-size: 3em;
@@ -95,6 +111,16 @@ button, #target {
   width: 810px;
   margin-top: 40px;
   border-bottom: solid 1px silver;
+  position: relative;
+}
+.nextBtnHan{
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: 2px solid;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
 }
 .hanzi-char{
   box-shadow: 0 1px 5px rgb(0 0 0 / 67%);
