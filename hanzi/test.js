@@ -566,6 +566,8 @@ async function updateCharacters() {
       }
     }
 
+    window.hanziScores = [];
+
     // === Quiz con seguimiento por trazo y resumen final ===
     writer.quiz({
       showOutline: true,
@@ -587,6 +589,9 @@ async function updateCharacters() {
 
         punctuationDiv.textContent = `Has completado el carácter.\n Trazos: ${totalStrokes}\n Errores: ${mistakes}\n Calificación: ${score}%`;
 
+        const index = parseInt(charContainer.id.split("_")[2]);
+        window.hanziScores[index] = score;
+
         const bgColor = getScoreColor(score);
 
         // Aplicar colores dinámicamente
@@ -595,20 +600,55 @@ async function updateCharacters() {
         char_tab.style.background = `${bgColor}`;
         char_tab.style.borderRadius = `50%`;
 
-        // 👉 Ir al siguiente tab automáticamente
-        const currentIndex = parseInt(char_tab.id.split("_")[1]);
-        const nextIndex = currentIndex + 1;
+        // Crear banner
+    const banner = document.createElement("div");
+    banner.className = "score-banner";
+    banner.style.background = bgColor;
+    banner.style.color = "#fff";
+    banner.style.padding = "15px";
+    banner.style.marginTop = "10px";
+    banner.style.textAlign = "center";
+    banner.style.borderRadius = "8px";
+    banner.innerHTML = `
+      <p>✅ Has completado el carácter <b>${char}</b></p>
+      <p>Trazos: ${totalStrokes} | Errores: ${mistakes} | Calificación: ${score}%</p>
+    `;
 
-        if (document.getElementById(`con_hanzi_${nextIndex}`)) {
-          // Usar showCharContent para mostrar el siguiente
-          showCharContent(nextIndex);
+    // Crear botón de siguiente
+    const nextBtnHan = document.createElement("button");
+    nextBtnHan.textContent = "➡️ Siguiente carácter";
+    nextBtnHan.style.marginTop = "10px";
+    nextBtnHan.style.padding = "10px 20px";
+    nextBtnHan.style.borderRadius = "6px";
+    nextBtnHan.style.border = "none";
+    nextBtnHan.style.cursor = "pointer";
 
-          // También puedes "simular" clic en el tab si prefieres
-          // document.getElementById(`charTabIndicador_${nextIndex}`).click();
-        }
+    banner.appendChild(nextBtnHan);
+    punctuationDiv.appendChild(banner);
 
-        
+    // Acción del botón
+    nextBtnHan.addEventListener("click", () => {
+      const charTabs = document.querySelectorAll('[id^="charTabIndicador_"]');
+      const charContents = document.querySelectorAll('[id^="con_hanzi_"]');
+      let nextIndex = index + 1;
 
+      if (nextIndex < charTabs.length) {
+        // Mostrar siguiente carácter
+        charTabs.forEach((t, i) => t.classList.toggle("active", i === nextIndex));
+        charContents.forEach((c, i) => c.style.display = (i === nextIndex) ? "block" : "none");
+      } else {
+        // Último carácter → calcular promedio
+        const scores = window.hanziScores.filter(s => typeof s === "number");
+        const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+
+        banner.innerHTML = `
+          <p>🎉 ¡Has terminado todos los caracteres!</p>
+          <p>Promedio final: <b>${avg}%</b></p>
+        `;
+      }
+    });
+
+    
         
       }
 
