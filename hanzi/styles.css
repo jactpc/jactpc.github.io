@@ -81,6 +81,11 @@ button, #target {
   font-size: 6em;
   color: #888;
 }
+.charTabtitle:hover, .charTabtitle.active{
+  border-bottom: 2px solid #007bff;
+  color: #007bff;
+  cursor: pointer;
+}
 .radicalDiv{
   font-size: 3em;
 }

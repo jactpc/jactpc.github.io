@@ -449,7 +449,7 @@ async function updateCharacters() {
     const pinyinChar = window.pinyinPro.pinyin(char, { toneType: 'marks' });
 
     const char_tab = document.createElement("div");
-    char_tab.className = "hanzi charTabtitte";
+    char_tab.className = "hanzi charTabtitle";
     char_tab.id = `charTabIndicador_${i}`;
     char_tab.textContent = `${char}`;
     tabIndicador.appendChild(char_tab);
@@ -592,7 +592,24 @@ async function updateCharacters() {
         // Aplicar colores dinámicamente
         charDiv.style.boxShadow = `inset 0px 0px 22px 9px ${bgColor}`;
         punctuationDiv.style.boxShadow = `1px 0px 0px 4px ${bgColor}`;
-        char_tab.style.color = `${bgColor}`;
+        char_tab.style.background = `${bgColor}`;
+        char_tab.style.borderRadius = `50%`;
+
+        // 👉 Ir al siguiente tab automáticamente
+        const currentIndex = parseInt(char_tab.id.split("_")[1]);
+        const nextIndex = currentIndex + 1;
+
+        if (document.getElementById(`con_hanzi_${nextIndex}`)) {
+          // Usar showCharContent para mostrar el siguiente
+          showCharContent(nextIndex);
+
+          // También puedes "simular" clic en el tab si prefieres
+          // document.getElementById(`charTabIndicador_${nextIndex}`).click();
+        }
+
+        
+
+        
       }
 
     });
