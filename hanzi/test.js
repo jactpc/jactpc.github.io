@@ -465,12 +465,6 @@ async function updateCharacters() {
     titleDiv.textContent = `${char} ${pinyinChar}`;// (${transES.es})`;
     charContainer.appendChild(titleDiv);
 
-    const radicalDiv = document.createElement('div');
-    radicalDiv.className="radicalDiv";
-    // Esperar el resultado de getRadicalVariants
-    radicalDiv.textContent = `Radical: ${await getRadicalVariants(char)}`;
-    charContainer.appendChild(radicalDiv);
-
     const btnAudio = createButton(`pinyin_audio_${i}`,"🔊", "Pronunciación normal","btnAudio", `${char} 1x`);
     btnAudio.id = `pinyin_audio_${i}`;
     charContainer.appendChild(btnAudio);
@@ -482,6 +476,12 @@ async function updateCharacters() {
     charContainer.appendChild(btnAudioSlow);
     container.appendChild(charContainer);
     attachAudioButton(btnAudioSlow.id, char, "zh", 0.6);
+
+    const radicalDiv = document.createElement('div');
+    radicalDiv.className="radicalDiv";
+    // Esperar el resultado de getRadicalVariants
+    radicalDiv.textContent = `Radical: ${await getRadicalVariants(char)}`;
+    charContainer.appendChild(radicalDiv);
 
     // Div para mostrar RAW
     const raw = document.createElement('div');
