@@ -474,11 +474,13 @@ async function updateCharacters() {
     const btnAudio = createButton(`pinyin_audio_${i}`,"🔊", "Pronunciación normal","btnAudio", `${char} 1x`);
     btnAudio.id = `pinyin_audio_${i}`;
     charContainer.appendChild(btnAudio);
+    container.appendChild(charContainer);
     attachAudioButton(btnAudio.id, char, "zh", 1.0);
 
     const btnAudioSlow = createButton(`pinyin_audio_slow_${i}`,"🐢", "Pronunciación lenta", "btnAudio", `${char} 0.6x`);
     btnAudioSlow.id = `pinyin_audio_slow_${i}`;
     charContainer.appendChild(btnAudioSlow);
+    container.appendChild(charContainer);
     attachAudioButton(btnAudioSlow.id, char, "zh", 0.6);
 
     // Div para mostrar RAW
@@ -600,84 +602,80 @@ async function updateCharacters() {
         char_tab.style.background = `${bgColor}`;
 
         // Crear banner
-    const banner = document.createElement("div");
-    banner.className = "score-banner";
-    banner.innerHTML = `
-      <p>✅ Has completado el carácter <b>${char}</b></p>
-      <b>Trazos: ${totalStrokes}</b>
-      <b>Errores: ${mistakes}</b>
-      <b>Calificación: ${score}%</b>
-    `;
-
-    // Crear botón de siguiente
-    const nextBtnHan = document.createElement("button");
-    nextBtnHan.textContent = "＞";
-    nextBtnHan.className = "nextBtnHan";
-
-    banner.appendChild(nextBtnHan);
-    charContainer.appendChild(banner);
-
-    // Acción del botón
-    nextBtnHan.addEventListener("click", () => {
-      const charTabs = document.querySelectorAll('[id^="charTabIndicador_"]');
-      const charContents = document.querySelectorAll('[id^="con_hanzi_"]');
-      let nextIndex = index + 1;
-
-      if (nextIndex < charTabs.length) {
-        // Mostrar siguiente carácter
-        charTabs.forEach((t, i) => t.classList.toggle("active", i === nextIndex));
-        charContents.forEach((c, i) => c.style.display = (i === nextIndex) ? "block" : "none");
-      } else {
-        // Último carácter → calcular promedio
-        const scores = window.hanziScores.filter(s => typeof s === "number");
-        const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
-
+        const banner = document.createElement("div");
+        banner.className = "score-banner";
         banner.innerHTML = `
-          <p>🎉 ¡Has terminado todos los caracteres!</p>
-          <p>Promedio final: <b>${avg}%</b></p>
+          <p>✅ Has completado el carácter <b>${char}</b></p>
+          <b>Trazos: ${totalStrokes}</b>
+          <b>Errores: ${mistakes}</b>
+          <b>Calificación: ${score}%</b>
         `;
-      }
-    });
 
-    
-        
-      }
+        // Crear botón de siguiente
+        const nextBtnHan = document.createElement("button");
+        nextBtnHan.textContent = "＞";
+        nextBtnHan.className = "nextBtnHan";
 
+        banner.appendChild(nextBtnHan);
+        charContainer.appendChild(banner);
+
+        // Acción del botón
+        nextBtnHan.addEventListener("click", () => {
+          const charTabs = document.querySelectorAll('[id^="charTabIndicador_"]');
+          const charContents = document.querySelectorAll('[id^="con_hanzi_"]');
+          let nextIndex = index + 1;
+
+          if (nextIndex < charTabs.length) {
+            // Mostrar siguiente carácter
+            charTabs.forEach((t, i) => t.classList.toggle("active", i === nextIndex));
+            charContents.forEach((c, i) => c.style.display = (i === nextIndex) ? "block" : "none");
+          } else {
+            // Último carácter → calcular promedio
+            const scores = window.hanziScores.filter(s => typeof s === "number");
+            const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+
+            banner.innerHTML = `
+              <p>🎉 ¡Has terminado todos los caracteres!</p>
+              <p>Promedio final: <b>${avg}%</b></p>
+            `;
+          }
+        });
+      }
     });
   }
 
   // =============================
-// 🔥 Vincular charTabIndicador_X con con_hanzi_X
-// =============================
+  // 🔥 Vincular charTabIndicador_X con con_hanzi_X
+  // =============================
 
-// Seleccionar todos los tabs y los contenedores
-const charTabs = document.querySelectorAll('[id^="charTabIndicador_"]');
-const charContents = document.querySelectorAll('[id^="con_hanzi_"]');
+  // Seleccionar todos los tabs y los contenedores
+  const charTabs = document.querySelectorAll('[id^="charTabIndicador_"]');
+  const charContents = document.querySelectorAll('[id^="con_hanzi_"]');
 
-function showCharContent(index) {
-  // Mostrar solo el contenido correspondiente
-  charContents.forEach((c, i) => {
-    c.style.display = (i === index) ? "block" : "none";
+  function showCharContent(index) {
+    // Mostrar solo el contenido correspondiente
+    charContents.forEach((c, i) => {
+      c.style.display = (i === index) ? "block" : "none";
+    });
+
+    // Marcar tab activo
+    charTabs.forEach((t, i) => {
+      t.classList.toggle("active", i === index);
+    });
+  }
+
+  // Asignar eventos de click a cada tab
+  charTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const index = parseInt(tab.id.split("_")[1]); // obtener el número (X)
+      showCharContent(index);
+    });
   });
 
-  // Marcar tab activo
-  charTabs.forEach((t, i) => {
-    t.classList.toggle("active", i === index);
-  });
-}
-
-// Asignar eventos de click a cada tab
-charTabs.forEach(tab => {
-  tab.addEventListener("click", () => {
-    const index = parseInt(tab.id.split("_")[1]); // obtener el número (X)
-    showCharContent(index);
-  });
-});
-
-// Mostrar el primer carácter por defecto
-if (charContents.length > 0) {
-  showCharContent(0);
-}
+  // Mostrar el primer carácter por defecto
+  if (charContents.length > 0) {
+    showCharContent(0);
+  }
 
 
   // Actualizar traducción y pinyin global para todo el texto
@@ -759,34 +757,34 @@ async function updateTranslationAndPinyin(texto_full) {
   const textoEn = trans.en.replace(/\n/g, "<br>");
   translationBox.innerHTML = `
     <div class="tabs">
-      <div class="tab active" data-target="zh"><strong>简体中文 </strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
-      <div class="tab" data-target="zh2"><strong>繁体中文 </strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
-      <div class="tab" data-target="eng"><strong>EN </strong>${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudioCorto", "").outerHTML}</div>
-      <div class="tab" data-target="esp"><strong>ES </strong>${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab active" data-target="zh"><strong>🇹🇼 </strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="zh2"><strong>🇨🇳 </strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="eng"><strong>🇬🇧 </strong>${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="esp"><strong>🇪🇸 </strong>${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudioCorto", "").outerHTML}</div>
     </div>
     <div class="tab-content active" id="zh">
-      <strong>简体中文: </strong>
+      <strong>🇹🇼 简体中文: </strong>
       ${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_zhcn_slow", "🐢", "Reproducir pronunciación chino simplificado lento", "btnAudio", "0.6x").outerHTML}
       <div class="zhtxt">${hanziWithPinyinColored(trans.zh_simp, "simp")}</div>
     </div>
 
     <div class="tab-content" id="zh2">
-      <strong>繁体中文: </strong>
+      <strong>🇨🇳 繁体中文: </strong>
       ${createButton("btnAudio_zhsimp", "🔊", "Reproducir pronunciación chino tradicional", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_zhsimp_slow", "🐢", "Reproducir pronunciación chino tradicional lento", "btnAudio", "0.6x").outerHTML}
       <div class="zhtxt">${hanziWithPinyinColored(trans.zh_tr, "trad")}</div>
     </div>
 
     <div class="tab-content" id="eng">
-      <strong>English: </strong>
+      <strong>🇬🇧 English: </strong>
       ${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_en_slow", "🐢", "Play English slow", "btnAudio", "0.6x").outerHTML}
       <div class="trans"><p>${textoEn}</p></div>
     </div>
 
     <div class="tab-content" id="esp">
-      <strong>Español: </strong>
+      <strong>🇪🇸 Español: </strong>
       ${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_es_slow", "🐢", "Reproducir pronunciación en español lento", "btnAudio", "0.6x").outerHTML}
       <div class="trans"><p>${textoEs}</p></div>
@@ -807,23 +805,23 @@ async function updateTranslationAndPinyin(texto_full) {
   const tabs = document.querySelectorAll(".tab");
   const contents = document.querySelectorAll(".tab-content");
 
-function activateTab(index, direction = "left") {
-  tabs.forEach(t => t.classList.remove("active"));
-  contents.forEach(c => {
-    c.classList.remove("active", "slide-in-left", "slide-in-right");
-  });
+  function activateTab(index, direction = "left") {
+    tabs.forEach(t => t.classList.remove("active"));
+    contents.forEach(c => {
+      c.classList.remove("active", "slide-in-left", "slide-in-right");
+    });
 
-  tabs[index].classList.add("active");
+    tabs[index].classList.add("active");
 
-  // aplicar clase de animación según dirección
-  if (direction === "left") {
-    contents[index].classList.add("active", "slide-in-left");
-  } else {
-    contents[index].classList.add("active", "slide-in-right");
+    // aplicar clase de animación según dirección
+    if (direction === "left") {
+      contents[index].classList.add("active", "slide-in-left");
+    } else {
+      contents[index].classList.add("active", "slide-in-right");
+    }
+
+    currentTabIndex = index;
   }
-
-  currentTabIndex = index;
-}
 
   // Para simplificado: audio por carácter
   trans.zh_simp.split("\n").forEach((line, pIndex) => {
