@@ -286,6 +286,13 @@ button.btnFeatures{
 }
 button.btnAudioCorto{
   border-radius: 50%;
+  padding: 10px;
+  position: absolute;
+  margin-left: -35px;
+  width: 74px;
+}
+.btnAudioCorto:hover {
+    border: 2px solid #007bff;
 }
 button.btnAudio{
   min-width: 115px;

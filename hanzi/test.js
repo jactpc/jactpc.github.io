@@ -757,34 +757,34 @@ async function updateTranslationAndPinyin(texto_full) {
   const textoEn = trans.en.replace(/\n/g, "<br>");
   translationBox.innerHTML = `
     <div class="tabs">
-      <div class="tab active" data-target="zh"><strong>🇹🇼 </strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
-      <div class="tab" data-target="zh2"><strong>🇨🇳 </strong>${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudioCorto", "").outerHTML}</div>
-      <div class="tab" data-target="eng"><strong>🇬🇧 </strong>${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudioCorto", "").outerHTML}</div>
-      <div class="tab" data-target="esp"><strong>🇪🇸 </strong>${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab active" data-target="zh"><strong>🇨🇳 </strong>${createButton("btnAudio_zhsimpCorto", "🔊", "Reproducir pronunciación Chino Simplificado", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="zh2"><strong>🇹🇼 </strong>${createButton("btnAudio_zhcnCorto", "🔊", "Reproducir pronunciación Chino Tradicional", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="eng"><strong>🇬🇧 </strong>${createButton("btnAudio_enCorto", "🔊", "Play English pronunciation", "btnAudioCorto", "").outerHTML}</div>
+      <div class="tab" data-target="esp"><strong>🇪🇸 </strong>${createButton("btnAudio_esCorto", "🔊", "Reproducir pronunciación en español", "btnAudioCorto", "").outerHTML}</div>
     </div>
     <div class="tab-content active" id="zh">
-      <strong>🇹🇼 简体中文 </strong>
+      <span style="font-size: 68px;display: inline-flex;"><div style="font-size: 80px;">🇨🇳 </div><div>简体中文 </div></span>
       ${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_zhcn_slow", "🐢", "Reproducir pronunciación chino simplificado lento", "btnAudio", "0.6x").outerHTML}
       <div class="zhtxt">${hanziWithPinyinColored(trans.zh_simp, "simp")}</div>
     </div>
 
     <div class="tab-content" id="zh2">
-      <strong>🇨🇳 繁体中文 </strong>
+      <span style="font-size: 68px;display: inline-flex;"><div style="font-size: 80px;">🇹🇼 </div><div>繁体中文 </div></span>
       ${createButton("btnAudio_zhsimp", "🔊", "Reproducir pronunciación chino tradicional", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_zhsimp_slow", "🐢", "Reproducir pronunciación chino tradicional lento", "btnAudio", "0.6x").outerHTML}
       <div class="zhtxt">${hanziWithPinyinColored(trans.zh_tr, "trad")}</div>
     </div>
 
     <div class="tab-content" id="eng">
-      <strong>🇬🇧 English </strong>
+      <span style="font-size: 68px;display: inline-flex;"><div style="font-size: 80px;">🇬🇧 </div><div>English </div></span>
       ${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_en_slow", "🐢", "Play English slow", "btnAudio", "0.6x").outerHTML}
       <div class="trans"><p>${textoEn}</p></div>
     </div>
 
     <div class="tab-content" id="esp">
-      <strong>🇪🇸 Español</strong>
+      <span style="font-size: 68px;display: inline-flex;"><div style="font-size: 80px;">🇪🇸 </div><div>Español </div></span>
       ${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_es_slow", "🐢", "Reproducir pronunciación en español lento", "btnAudio", "0.6x").outerHTML}
       <div class="trans"><p>${textoEs}</p></div>
@@ -862,6 +862,10 @@ async function updateTranslationAndPinyin(texto_full) {
   attachAudioButton("btnAudio_zhsimp", trans.zh_simp, "zh", 1.0);
   attachAudioButton("btnAudio_en", trans.en, "en", 1.0);
   attachAudioButton("btnAudio_es", trans.es, "es", 1.0);
+  attachAudioButton("btnAudio_zhcnCorto", trans.zh_simp, "zh_HANT", 1.0);
+  attachAudioButton("btnAudio_zhsimpCorto", trans.zh_simp, "zh", 1.0);
+  attachAudioButton("btnAudio_enCorto", trans.en, "en", 1.0);
+  attachAudioButton("btnAudio_esCorto", trans.es, "es", 1.0);
 
   // Botones de audio lento
   attachAudioButton("btnAudio_zhsimp_slow", trans.zh_simp, "zh", 0.6);
