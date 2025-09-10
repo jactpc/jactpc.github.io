@@ -763,28 +763,28 @@ async function updateTranslationAndPinyin(texto_full) {
       <div class="tab" data-target="esp"><strong>🇪🇸 </strong>${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudioCorto", "").outerHTML}</div>
     </div>
     <div class="tab-content active" id="zh">
-      <strong>🇹🇼 简体中文: </strong>
+      <strong>🇹🇼 简体中文 </strong>
       ${createButton("btnAudio_zhcn", "🔊", "Reproducir pronunciación chino simplificado", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_zhcn_slow", "🐢", "Reproducir pronunciación chino simplificado lento", "btnAudio", "0.6x").outerHTML}
       <div class="zhtxt">${hanziWithPinyinColored(trans.zh_simp, "simp")}</div>
     </div>
 
     <div class="tab-content" id="zh2">
-      <strong>🇨🇳 繁体中文: </strong>
+      <strong>🇨🇳 繁体中文 </strong>
       ${createButton("btnAudio_zhsimp", "🔊", "Reproducir pronunciación chino tradicional", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_zhsimp_slow", "🐢", "Reproducir pronunciación chino tradicional lento", "btnAudio", "0.6x").outerHTML}
       <div class="zhtxt">${hanziWithPinyinColored(trans.zh_tr, "trad")}</div>
     </div>
 
     <div class="tab-content" id="eng">
-      <strong>🇬🇧 English: </strong>
+      <strong>🇬🇧 English </strong>
       ${createButton("btnAudio_en", "🔊", "Play English pronunciation", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_en_slow", "🐢", "Play English slow", "btnAudio", "0.6x").outerHTML}
       <div class="trans"><p>${textoEn}</p></div>
     </div>
 
     <div class="tab-content" id="esp">
-      <strong>🇪🇸 Español: </strong>
+      <strong>🇪🇸 Español</strong>
       ${createButton("btnAudio_es", "🔊", "Reproducir pronunciación en español", "btnAudio", "1x").outerHTML}
       ${createButton("btnAudio_es_slow", "🐢", "Reproducir pronunciación en español lento", "btnAudio", "0.6x").outerHTML}
       <div class="trans"><p>${textoEs}</p></div>
