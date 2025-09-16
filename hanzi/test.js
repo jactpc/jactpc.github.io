@@ -452,6 +452,9 @@ async function updateCharacters() {
     char_tab.className = "hanzi charTabtitle";
     char_tab.id = `charTabIndicador_${i}`;
     char_tab.textContent = `${char}`;
+    const statusdiv = document.createElement("div");
+    statusdiv.className = "status";
+    char_tab.appendChild(statusdiv);
     tabIndicador.appendChild(char_tab);
     
     // === Construcción del bloque ===
@@ -599,7 +602,7 @@ async function updateCharacters() {
         // Aplicar colores dinámicamente
         charDiv.style.boxShadow = `inset 0px 0px 22px 9px ${bgColor}`;
         punctuationDiv.style.boxShadow = `1px 0px 0px 4px ${bgColor}`;
-        char_tab.style.background = `${bgColor}`;
+        statusdiv.style.background = `${bgColor}`;
 
         // Crear banner
         const banner = document.createElement("div");
@@ -644,6 +647,22 @@ async function updateCharacters() {
     });
   }
 
+
+  function centerActiveTab() {
+    const activeTab = document.querySelector('.hanzi.active');
+    if (!activeTab) return;
+    
+    const tabsContainer = document.querySelector('.charTabIndicador');
+    const containerWidth = tabsContainer.offsetWidth;
+    const tabOffsetLeft = activeTab.offsetLeft;
+    const tabWidth = activeTab.offsetWidth;
+    const scrollPosition = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
+    
+    tabsContainer.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+    });
+}
   // =============================
   // 🔥 Vincular charTabIndicador_X con con_hanzi_X
   // =============================
@@ -669,12 +688,15 @@ async function updateCharacters() {
     tab.addEventListener("click", () => {
       const index = parseInt(tab.id.split("_")[1]); // obtener el número (X)
       showCharContent(index);
+
+      setTimeout(centerActiveTab, 10);
     });
   });
 
   // Mostrar el primer carácter por defecto
   if (charContents.length > 0) {
     showCharContent(0);
+    setTimeout(centerActiveTab, 10);
   }
 
 
