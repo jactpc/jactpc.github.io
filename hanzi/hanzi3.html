@@ -61,6 +61,8 @@
     const filteredSentences = sentences.filter(sentence => sentence.simplified.includes(character));
     if (filteredSentences.length > 0) {
       const randomSentence = filteredSentences[Math.floor(Math.random() * filteredSentences.length)];
+      return randomSentence.simplified;
+      return randomSentence.pinyin;
       return randomSentence.english;
     }
     return 'No se encontró una oración de ejemplo.';
