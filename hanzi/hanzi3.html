@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>HSK 1 Flashcards + Imágenes</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    background: #fdfdfd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+  #card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    padding: 30px;
+    width: 320px;
+    text-align: center;
+    transition: transform 0.3s;
+  }
+  #card:hover { transform: scale(1.03); }
+  #hanzi {
+    font-size: 70px;
+    margin: 10px 0;
+  }
+  #pinyin {
+    font-size: 22px;
+    color: #555;
+  }
+  #definition {
+    font-size: 18px;
+    color: #666;
+    margin-top: 6px;
+  }
+  #image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  #controls {
+    margin-top: 20px;
+  }
+  button {
+    background: #009578;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin: 0 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  button:hover {
+    background: #007a63;
+  }
+</style>
+</head>
+<body>
+
+<h2>🈶️ HSK 1 Flashcards con imágenes</h2>
+
+<div id="card">
+  <img id="image" src="" alt="imagen">
+  <div id="hanzi">加载中...</div>
+  <div id="pinyin"></div>
+  <div id="definition"></div>
+</div>
+
+<div id="controls">
+  <button id="prev">⏮️ Anterior</button>
+  <button id="next">⏭️ Siguiente</button>
+</div>
+
+<script>
+const PEXELS_API_KEY = "y67AEWcVRlPAxLiMY2trFlpNFaNVqgIwyBON85vsR2f7uafIlyNDcYxV"; // 👈 Coloca tu API Key de Pexels aquí
+const XML_URL = "hsk_1.xml";
+
+let entries = [];
+let index = 0;
+
+async function loadXML() {
+  const res = await fetch(XML_URL);
+  const xmlText = await res.text();
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlText, "application/xml");
+  const nodes = xml.getElementsByTagName("entry");
+  entries = Array.from(nodes).map(node => ({
+    hanzi: node.getElementsByTagName("headword")[0].textContent,
+    pinyin: node.getElementsByTagName("pinyin")[0].textContent,
+    definition: node.getElementsByTagName("definition")[0].textContent
+  }));
+  showCard();
+}
+
+async function showCard() {
+  const entry = entries[index];
+  if (!entry) return;
+
+  document.getElementById("hanzi").textContent = entry.hanzi;
+  document.getElementById("pinyin").textContent = entry.pinyin;
+  document.getElementById("definition").textContent = entry.definition;
+
+  // Buscar imagen relacionada en Pexels
+  const image = document.getElementById("image");
+  image.src = "";
+  try {
+    const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(entry.hanzi)}&per_page=1`, {
+      headers: { Authorization: PEXELS_API_KEY }
+    });
+    const data = await res.json();
+    if (data.photos && data.photos.length > 0) {
+      image.src = data.photos[0].src.medium;
+    } else {
+      image.src = "https://via.placeholder.com/320x200?text=Sin+imagen";
+    }
+  } catch {
+    image.src = "https://via.placeholder.com/320x200?text=Error+al+cargar";
+  }
+}
+
+document.getElementById("next").addEventListener("click", () => {
+  index = (index + 1) % entries.length;
+  showCard();
+});
+
+document.getElementById("prev").addEventListener("click", () => {
+  index = (index - 1 + entries.length) % entries.length;
+  showCard();
+});
+
+loadXML();
+</script>
+</body>
+</html>
