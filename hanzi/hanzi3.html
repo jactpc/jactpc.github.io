@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8">
-  <title>HSK1 Flashcards (Pleco JSON)</title>
+  <title>HSK1 Flashcards Aleatorias</title>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -13,7 +13,7 @@
     .card {
       margin: auto;
       width: 260px;
-      height: 200px;
+      height: 250px;
       border-radius: 20px;
       box-shadow: 0 6px 16px rgba(0,0,0,0.2);
       display: flex;
@@ -40,6 +40,12 @@
       color: #555;
       display: none;
     }
+    .example {
+      font-size: 1rem;
+      color: #333;
+      display: none;
+      margin-top: 10px;
+    }
     .buttons {
       margin-top: 20px;
     }
@@ -58,33 +64,28 @@
   </style>
 </head>
 <body>
-  <h2>🈶 HSK 1 Flashcards</h2>
+  <h2>🈶 HSK 1 Flashcards Aleatorias</h2>
   <div class="card" id="card">
     <div class="hanzi" id="hanzi">加载中...</div>
     <div class="pinyin" id="pinyin"></div>
     <div class="meaning" id="meaning"></div>
+    <div class="example" id="example"></div>
   </div>
   <div class="buttons">
-    <button id="prev">⏮ Anterior</button>
     <button id="show">👁 Mostrar</button>
     <button id="next">⏭ Siguiente</button>
   </div>
 
   <script>
   let cards = [];
-  let index = 0;
-  const hanziEl = document.getElementById('hanzi');
-  const pinyinEl = document.getElementById('pinyin');
-  const meaningEl = document.getElementById('meaning');
+  let currentCard = {};
 
   async function loadCards() {
     const res = await fetch('hsk1.json');
     const data = await res.json();
     cards = data.plecoflash.cards.card.map(item => {
       let word;
-      // Algunos tienen headword como array (simplificado + tradicional)
       if (Array.isArray(item.entry.headword)) {
-        // preferimos el simplificado
         word = item.entry.headword.find(h => h._charset === "sc")?.__text || item.entry.headword[0].__text;
       } else {
         word = item.entry.headword;
@@ -92,33 +93,32 @@
       return {
         hanzi: word,
         pinyin: item.entry.pron.__text,
-        meaning: item.entry.defn
+        meaning: item.entry.defn,
+        example: item.entry.example
       };
     });
-    showCard();
+    showRandomCard();
   }
 
-  function showCard() {
-    const card = cards[index];
-    hanziEl.textContent = card.hanzi;
-    pinyinEl.textContent = card.pinyin;
-    meaningEl.textContent = card.meaning;
-    pinyinEl.style.display = 'none';
-    meaningEl.style.display = 'none';
+  function showRandomCard() {
+    const randomIndex = Math.floor(Math.random() * cards.length);
+    currentCard = cards[randomIndex];
+    document.getElementById('hanzi').textContent = currentCard.hanzi;
+    document.getElementById('pinyin').textContent = currentCard.pinyin;
+    document.getElementById('meaning').textContent = currentCard.meaning;
+    document.getElementById('example').textContent = currentCard.example;
+    document.getElementById('pinyin').style.display = 'none';
+    document.getElementById('meaning').style.display = 'none';
+    document.getElementById('example').style.display = 'none';
   }
 
   document.getElementById('show').onclick = () => {
-    pinyinEl.style.display = 'block';
-    meaningEl.style.display = 'block';
+    document.getElementById('pinyin').style.display = 'block';
+    document.getElementById('meaning').style.display = 'block';
+    document.getElementById('example').style.display = 'block';
   };
-  document.getElementById('next').onclick = () => {
-    index = (index + 1) % cards.length;
-    showCard();
-  };
-  document.getElementById('prev').onclick = () => {
-    index = (index - 1 + cards.length) % cards.length;
-    showCard();
-  };
+
+  document.getElementById('next').onclick = showRandomCard;
 
   loadCards();
   </script>
