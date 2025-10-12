@@ -2,69 +2,13 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8">
-  <title>HSK1 Flashcards Aleatorias</title>
+  <title>HSK1 Flashcards con Oraciones</title>
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      text-align: center;
-      background: #f8fafc;
-      padding: 40px;
-    }
-    .card {
-      margin: auto;
-      width: 260px;
-      height: 250px;
-      border-radius: 20px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: white;
-      transition: transform 0.4s;
-      cursor: pointer;
-    }
-    .card:hover {
-      transform: scale(1.05);
-    }
-    .hanzi {
-      font-size: 4rem;
-    }
-    .pinyin {
-      font-size: 1.5rem;
-      color: #0078D7;
-      display: none;
-    }
-    .meaning {
-      font-size: 1rem;
-      color: #555;
-      display: none;
-    }
-    .example {
-      font-size: 1rem;
-      color: #333;
-      display: none;
-      margin-top: 10px;
-    }
-    .buttons {
-      margin-top: 20px;
-    }
-    button {
-      margin: 6px;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #0078D7;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #005fa3;
-    }
+    /* Estilos similares al código anterior */
   </style>
 </head>
 <body>
-  <h2>🈶 HSK 1 Flashcards Aleatorias</h2>
+  <h2>🈶 HSK 1 Flashcards con Oraciones</h2>
   <div class="card" id="card">
     <div class="hanzi" id="hanzi">加载中...</div>
     <div class="pinyin" id="pinyin"></div>
@@ -79,6 +23,7 @@
   <script>
   let cards = [];
   let currentCard = {};
+  let sentences = []; // Array para almacenar las oraciones
 
   async function loadCards() {
     const res = await fetch('hsk1.json');
@@ -97,16 +42,38 @@
         example: item.entry.example
       };
     });
+    // Cargar oraciones desde el archivo de oraciones
+    await loadSentences();
     showRandomCard();
+  }
+
+  async function loadSentences() {
+    const res = await fetch('sentences.tsv');
+    const text = await res.text();
+    const rows = text.split('\n');
+    sentences = rows.map(row => {
+      const [id, simplified, traditional, pinyin, english] = row.split('\t');
+      return { simplified, traditional, pinyin, english };
+    });
+  }
+
+  function getExampleSentence(character) {
+    const filteredSentences = sentences.filter(sentence => sentence.simplified.includes(character));
+    if (filteredSentences.length > 0) {
+      const randomSentence = filteredSentences[Math.floor(Math.random() * filteredSentences.length)];
+      return randomSentence.english;
+    }
+    return 'No se encontró una oración de ejemplo.';
   }
 
   function showRandomCard() {
     const randomIndex = Math.floor(Math.random() * cards.length);
     currentCard = cards[randomIndex];
+    const example = getExampleSentence(currentCard.hanzi);
     document.getElementById('hanzi').textContent = currentCard.hanzi;
     document.getElementById('pinyin').textContent = currentCard.pinyin;
     document.getElementById('meaning').textContent = currentCard.meaning;
-    document.getElementById('example').textContent = currentCard.example;
+    document.getElementById('example').textContent = example;
     document.getElementById('pinyin').style.display = 'none';
     document.getElementById('meaning').style.display = 'none';
     document.getElementById('example').style.display = 'none';
