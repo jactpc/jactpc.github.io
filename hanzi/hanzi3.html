@@ -2,94 +2,260 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8">
-  <title>HSK1 Flashcards con Oraciones</title>
+  <title>HSK1 Flashcards con Búsqueda</title>
+  <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
   <style>
-    /* Estilos similares al código anterior */
+    @font-face {
+      font-family: 'GKai';
+      src: url('fonts/gkai00mp-2.ttf') format('truetype');
+    }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #f2f5fa, #e6ebf3);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+
+    h2 { margin-bottom: 20px; color: #333; }
+
+    .flashcard-container { perspective: 1000px; }
+
+    .card {
+      width: 900px;
+      height: 680px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s;
+      cursor: pointer;
+    }
+
+    .card.flipped { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 97%;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      backface-visibility: hidden;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-front { background: #fff; }
+    .card-back {
+      background: #0078d724;
+      color: #333;
+      transform: rotateY(180deg);
+      padding: 30px;
+    }
+
+    .hanzi-group {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hanzi-char, .hanzi-char2, .hanzi-char3 {
+      display: inline-block;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hanzi-char3 .pinyin-under { font-size: 44px; }
+    .hanzi-char3 .hanzi { font-size: 9rem; font-family: 'GKai'; }
+
+    .hanzi-char2 .hanzi {
+      font-size: 48px; padding: 2px; font-family: 'GKai';
+    }
+    .hanzi-char2 .pinyin-under { font-size: 23px; }
+
+    .hanzi-char .hanzi {
+      font-size: 13rem; font-family: 'GKai';
+    }
+    .hanzi-char .pinyin-under { font-size: 1.8rem; line-height: 1.2; }
+
+    .meaning { font-size: 1.2rem; margin-bottom: 15px; }
+    .example_simp { font-size: 44px; margin-bottom: 10px; }
+    .example { font-size: 1rem; color: #333; }
+
+    .buttons { margin-top: 30px; }
+
+    button {
+      margin: 8px; padding: 10px 20px; border: none;
+      border-radius: 10px; background: #0078D7; color: white;
+      cursor: pointer; font-size: 1rem; transition: 0.2s;
+    }
+    button:hover { background: #005fa3; }
+
+    #searchBox {
+      margin-bottom: 15px;
+      padding: 8px 15px;
+      font-size: 1.2rem;
+      border: 2px solid #0078D7;
+      border-radius: 10px;
+      outline: none;
+      width: 250px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <h2>🈶 HSK 1 Flashcards con Oraciones</h2>
-  <div class="card" id="card">
-    <div class="hanzi" id="hanzi">加载中...</div>
-    <div class="pinyin" id="pinyin"></div>
-    <div class="meaning" id="meaning"></div>
-    <div class="example" id="example"></div>
+  <h2>🈶 HSK 1 Flashcards con Búsqueda</h2>
+
+  <!-- 🔍 Caja de búsqueda -->
+  <input id="searchBox" type="text" placeholder="Buscar carácter o palabra..." />
+
+  <div class="flashcard-container">
+    <div class="card" id="card">
+      <!-- Frente -->
+      <div class="card-face card-front">
+        <div class="hanzi-group" id="hanziGroup">加载中...</div>
+      </div>
+
+      <!-- Reverso -->
+      <div class="card-face card-back">
+        <div class="hanzi-group" id="hanziGroup2">加载中...</div>
+        <div class="meaning" id="meaning"></div>
+        <div class="example_simp" id="exampleGroup"></div>
+        <div class="example" id="example"></div>
+      </div>
+    </div>
   </div>
+
   <div class="buttons">
     <button id="show">👁 Mostrar</button>
     <button id="next">⏭ Siguiente</button>
   </div>
 
   <script>
-  let cards = [];
-  let currentCard = {};
-  let sentences = []; // Array para almacenar las oraciones
+    const toneColors = {
+      1: "blue", 2: "green", 3: "orange", 4: "red", 5: "black"
+    };
 
-  async function loadCards() {
-    const res = await fetch('hsk1.json');
-    const data = await res.json();
-    cards = data.plecoflash.cards.card.map(item => {
-      let word;
-      if (Array.isArray(item.entry.headword)) {
-        word = item.entry.headword.find(h => h._charset === "sc")?.__text || item.entry.headword[0].__text;
-      } else {
-        word = item.entry.headword;
-      }
-      return {
-        hanzi: word,
-        pinyin: item.entry.pron.__text,
-        meaning: item.entry.defn,
-        example: item.entry.example
-      };
-    });
-    // Cargar oraciones desde el archivo de oraciones
-    await loadSentences();
-    showRandomCard();
-  }
+    let cards = [];
+    let currentCard = {};
+    let sentences = [];
 
-  async function loadSentences() {
-    const res = await fetch('sentences.tsv');
-    const text = await res.text();
-    const rows = text.split('\n');
-    sentences = rows.map(row => {
-      const [id, simplified, traditional, pinyin, english] = row.split('\t');
-      return { simplified, traditional, pinyin, english };
-    });
-  }
-
-  function getExampleSentence(character) {
-    const filteredSentences = sentences.filter(sentence => sentence.simplified.includes(character));
-    if (filteredSentences.length > 0) {
-      const randomSentence = filteredSentences[Math.floor(Math.random() * filteredSentences.length)];
-      return randomSentence.simplified;
-      return randomSentence.pinyin;
-      return randomSentence.english;
+    async function loadCards() {
+      const res = await fetch('hsk1.json');
+      const data = await res.json();
+      cards = data.plecoflash.cards.card.map(item => {
+        let word;
+        if (Array.isArray(item.entry.headword)) {
+          word = item.entry.headword.find(h => h._charset === "sc")?.__text || item.entry.headword[0].__text;
+        } else {
+          word = item.entry.headword;
+        }
+        return {
+          hanzi: word,
+          pinyin: item.entry.pron.__text,
+          meaning: item.entry.defn
+        };
+      });
+      await loadSentences();
+      showRandomCard();
     }
-    return 'No se encontró una oración de ejemplo.';
-  }
 
-  function showRandomCard() {
-    const randomIndex = Math.floor(Math.random() * cards.length);
-    currentCard = cards[randomIndex];
-    const example = getExampleSentence(currentCard.hanzi);
-    document.getElementById('hanzi').textContent = currentCard.hanzi;
-    document.getElementById('pinyin').textContent = currentCard.pinyin;
-    document.getElementById('meaning').textContent = currentCard.meaning;
-    document.getElementById('example').textContent = example;
-    document.getElementById('pinyin').style.display = 'none';
-    document.getElementById('meaning').style.display = 'none';
-    document.getElementById('example').style.display = 'none';
-  }
+    async function loadSentences() {
+      const res = await fetch('sentences.tsv');
+      const text = await res.text();
+      const rows = text.split('\n');
+      sentences = rows.map(row => {
+        const [id, simplified, traditional, pinyin, english] = row.split('\t');
+        return { simplified, traditional, pinyin, english };
+      });
+    }
 
-  document.getElementById('show').onclick = () => {
-    document.getElementById('pinyin').style.display = 'block';
-    document.getElementById('meaning').style.display = 'block';
-    document.getElementById('example').style.display = 'block';
-  };
+    function getExampleSentence(character) {
+      const filtered = sentences.filter(s => s.simplified && s.simplified.includes(character));
+      if (filtered.length > 0) {
+        const random = filtered[Math.floor(Math.random() * filtered.length)];
+        return random;
+      }
+      return { simplified: "未找到示例句子。", pinyin: "", english: "No example found." };
+    }
 
-  document.getElementById('next').onclick = showRandomCard;
+    function buildCharacterGroup(word, containerId, hanzistyle) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
 
-  loadCards();
+      const pinyinsTone = window.pinyinPro.pinyin(word, { toneType: 'mark', type: 'array' });
+      const pinyinsNum = window.pinyinPro.pinyin(word, { toneType: 'num', type: 'array' });
+
+      [...word].forEach((char, i) => {
+        const pinyin = pinyinsTone[i] || "";
+        const tone = parseInt(pinyinsNum[i].match(/\d$/)?.[0]) || 5;
+        const color = toneColors[tone] || "black";
+
+        const charDiv = document.createElement('div');
+        charDiv.classList.add(hanzistyle);
+
+        const hanziEl = document.createElement('div');
+        hanziEl.classList.add('hanzi');
+        hanziEl.style.color = color;
+        hanziEl.textContent = char;
+
+        const pinyinEl = document.createElement('div');
+        pinyinEl.classList.add('pinyin-under');
+        pinyinEl.style.color = color;
+        pinyinEl.textContent = pinyin;
+
+        charDiv.appendChild(hanziEl);
+        charDiv.appendChild(pinyinEl);
+        container.appendChild(charDiv);
+      });
+    }
+
+    function showCardByWord(word) {
+      const found = cards.find(c => c.hanzi === word);
+      if (!found) {
+        alert("❌ No se encontró en HSK1.");
+        return;
+      }
+      currentCard = found;
+      const example = getExampleSentence(currentCard.hanzi);
+      document.getElementById('card').classList.remove('flipped');
+      buildCharacterGroup(currentCard.hanzi, "hanziGroup", 'hanzi-char');
+      buildCharacterGroup(currentCard.hanzi, "hanziGroup2", 'hanzi-char3');
+      document.getElementById('meaning').textContent = currentCard.meaning;
+      buildCharacterGroup(example.simplified, "exampleGroup", 'hanzi-char2');
+      document.getElementById('example').textContent = example.english;
+    }
+
+    function showRandomCard() {
+      const randomIndex = Math.floor(Math.random() * cards.length);
+      showCardByWord(cards[randomIndex].hanzi);
+    }
+
+    document.getElementById('show').onclick = () => {
+      document.getElementById('card').classList.toggle('flipped');
+    };
+
+    document.getElementById('next').onclick = showRandomCard;
+
+    // 🔍 Buscar con Enter o al escribir
+    const searchBox = document.getElementById('searchBox');
+    searchBox.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        const query = searchBox.value.trim();
+        if (query) showCardByWord(query);
+      }
+    });
+
+    loadCards();
   </script>
 </body>
 </html>
