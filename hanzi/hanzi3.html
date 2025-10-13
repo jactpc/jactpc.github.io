@@ -129,8 +129,10 @@
       <div class="card-face card-back">
         <div class="hanzi-group" id="hanziGroup2">加载中...</div>
         <div class="meaning" id="meaning"></div>
+        <div class="meaning" id="meaning_es">Espere...</div>
         <div class="example_simp" id="exampleGroup"></div>
         <div class="example" id="example"></div>
+        <div class="example" id="example_es">Espere...</div>
       </div>
     </div>
   </div>
@@ -218,8 +220,20 @@
         container.appendChild(charDiv);
       });
     }
+    async function translateToSpanish(text) {
+      try {
+        const encText = encodeURIComponent(text);
+        const res = await fetch(`https://lingva.ml/api/v1/zh/es/${encText}`);
+        if (!res.ok) throw new Error("Error en la API");
+        const data = await res.json();
+        return data.translation;
+      } catch (err) {
+        console.error("Error al traducir:", err);
+        return null;
+      }
+    }
 
-    function showCardByWord(word) {
+    async function showCardByWord(word) {
       const found = cards.find(c => c.hanzi === word);
       if (!found) {
         alert("❌ No se encontró en HSK1.");
@@ -231,8 +245,20 @@
       buildCharacterGroup(currentCard.hanzi, "hanziGroup", 'hanzi-char');
       buildCharacterGroup(currentCard.hanzi, "hanziGroup2", 'hanzi-char3');
       document.getElementById('meaning').textContent = currentCard.meaning;
+      document.getElementById('meaning_es').textContent = "Traduciendo...";
+
       buildCharacterGroup(example.simplified, "exampleGroup", 'hanzi-char2');
       document.getElementById('example').textContent = example.english;
+      // Limpiar antes de traducir
+      document.getElementById('example_es').textContent = "Traduciendo...";
+
+      // Traducir al español usando Lingva.ml
+      const translation1 = await translateToSpanish(currentCard.meaning);
+      document.getElementById('meaning_es').textContent = translation1 || "Sin traducción disponible.";
+
+      const translation = await translateToSpanish(example.simplified);
+      document.getElementById('example_es').textContent = translation || "Sin traducción disponible.";
+
     }
 
     function showRandomCard() {
