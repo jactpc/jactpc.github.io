@@ -74,18 +74,20 @@ function createPdf(docTitle, characters, numberOfGrayscaleSigns, pasteSoImages, 
 			}
 			thisLineYUpLeft = yUpLeft + (i%charsPerPage) * charLineDistance;
 			// paste hanzi-write Stroke Order SVGs
-				if(pasteSoImages){
-					// this is the div which contains the stroke order of the character "characters[i]"
-					var charSvgs = document.getElementById('strokeOrderSvgs-' + characters[i]).childNodes;
-					// draw every "stroke order element" (= the partial character after k strokes)
-					for(var k = 0; k < charSvgs.length; k++){
-						svg2pdf(charSvgs[k], doc, {
-							xOffset: xUpLeft + 19 + k * 7.2,
-							yOffset: thisLineYUpLeft - 7.1,
-							scale: 1
-						});
-					}
-				}
+				// paste hanzi-write Stroke Order SVGs
+if(pasteSoImages){
+	// this is the div which contains the stroke order of the character "characters[i]"
+	var charSvgs = document.getElementById('strokeOrderSvgs-' + characters[i]).childNodes;
+		
+	// draw every "stroke order element" (= the partial character after k strokes)
+	for(var k = 0; k < charSvgs.length; k++){
+		svg2pdf(charSvgs[k], doc, {
+			xOffset: xUpLeft + 22 + k * 7.2, // ADD offset
+			yOffset: thisLineYUpLeft - 7.1,
+			scale: 1
+		});
+	}
+}
 			// gridlines - part 1
 				if(useGridlines){
 					doc.setDrawColor("D0D0D0");

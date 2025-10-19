@@ -52,10 +52,10 @@ $(document).ready(function(){
 			$("#strokeOrderSvgs-template").clone().attr("id","strokeOrderSvgs-" + characters[i]).insertAfter("#strokeOrderSvgs-template");
 			// draw the stroke order of the current character (if the user chose to do so)
 			drawSO(pasteSoImages, characters[i], function(){
-				return function(){
-					--strokeOrderDrawingCallbacksRemaining; // we drew one stroke order (equals 1 character) more! one less to go.
-					$(".amountDone").html(characters.length - strokeOrderDrawingCallbacksRemaining);
-					if(strokeOrderDrawingCallbacksRemaining <= 0){ // when all stroke orders are drawn
+	return function(){
+		--strokeOrderDrawingCallbacksRemaining;
+		$(".amountDone").html(characters.length - strokeOrderDrawingCallbacksRemaining);
+		if(strokeOrderDrawingCallbacksRemaining <= 0){
 						// let's get the pinyin to all the characters now (if the user chose to do so)
 						var charPinyin = [];
 						if(writePinyin){

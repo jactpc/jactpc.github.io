@@ -25,16 +25,23 @@
 		group.appendChild(path);
 	  });
 	}
+
 // main function
 function drawSO(reallyDoIt, character, callback){
 	if(reallyDoIt){
 		HanziWriter.loadCharacterData(character).then(function(charData) {
 			var target = document.getElementById('strokeOrderSvgs-' + character);
+			// draw the progressive stroke order only
 			for (var drawSOiterator = 0; drawSOiterator < charData.strokes.length; drawSOiterator++) {
 				var strokesPortion = charData.strokes.slice(0, drawSOiterator + 1);
 				renderFanningStrokes(target, strokesPortion);
 			}
+			callback();
+		}).catch(function(error) {
+			console.error('Error loading character data for:', character, error);
+			callback();
 		});
+	} else {
+		callback();
 	}
-	callback();
 }
