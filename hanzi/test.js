@@ -744,8 +744,8 @@ async function updateTranslationAndPinyin(texto_full) {
           // No es chino → lo mostramos igual
           return `
             <div class="hz-pairx">
-              <span class="hanzi" style="color:${toneColors['5']}">${char}</span>
-              <span class="pinyin" style="color:${toneColors['5']}">${char}</span>
+              <div class="pinyin" style="color:${toneColors['5']}">${char}</div>
+              <div class="charHanzi hanzi" style="color:${toneColors['5']}">${char}</div>
             </div>`;
         }
 
@@ -756,8 +756,8 @@ async function updateTranslationAndPinyin(texto_full) {
 
         return `
           <div class="hz-pair" id="${id}-audio">
-            <span class="hanzi" style="color:${color}">${char}</span>
-            <span class="pinyin" style="color:${color};">${py}</span>
+            <div class="pinyin" style="color:${color};">${py}</div>
+            <div class="charHanzi hanzi" style="color:${color}">${char}</div>
           </div>`;
       }).join("");
 

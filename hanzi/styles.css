@@ -188,7 +188,7 @@ button, #target {
 }
 .charTabIndicador{
     display: inline-flex;
-    height: 130px;
+    height: 141px;
     overflow-x: auto;
     scroll-behavior: smooth;
     padding: 15px 10px;
@@ -209,10 +209,10 @@ button, #target {
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
   cursor: pointer;
 }
-span.hanzi{
+div.charHanzi{
   font-size: 8.1rem;
 }
-div.hanzi{
+div.charTabtitle{
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   border: 2px solid #ddd;
   border-radius: 8px;
